@@ -1,8 +1,13 @@
 ---
 title: "MP3"
+author: "Shuli Hu, Karina Huang, Iris Dong"
 output: html_document
 ---
 
-
-###Shuli
-###Shuli
+```{r}
+library(mdsr)
+library(RMySQL)
+db <- dbConnect_scidb(dbname = "imdb")
+db %>%
+  dbGetQuery("SELECT * FROM kind_type;")
+```

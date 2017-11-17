@@ -7,7 +7,69 @@ output: html_document
 ```{r}
 library(mdsr)
 library(RMySQL)
-db <- dbConnect_scidb(dbname = "imdb")
-db %>%
-  dbGetQuery("SELECT * FROM kind_type;")
+#db <- dbConnect_scidb(dbname = "imdb")
+#db %>%
+  #dbGetQuery("SELECT * FROM kind_type;")
 ```
+
+```{r}
+#dbListTables(db)
+```
+```{r}
+#info_type_id = 3 AND info = 'Western'
+
+
+#title <- dbGetQuery(db,"
+#SELECT t.id, t.title, t.production_year
+#From title t
+#WHERE t.kind_id = 1
+#AND t.production_year >=1900
+#AND t.production_year <= 2015;")
+
+```
+
+```{r}
+#movie <- dbGetQuery(db,
+                    "SELECT m.id, m.movie_id, m.info_type_id, m.info
+                    FROM movie_info m
+                    WHERE info_type_id = 3
+                    AND info = 'Western';"
+  
+#)
+
+```
+
+
+```{r}
+#write.csv(title, file = "title.csv")
+#write.csv(movie, file = "movie.csv")
+```
+
+```{r}
+movie1 <- read.csv('/Users/KaReeNaaah/Desktop/movie.csv')
+title1 <- read.csv('/Users/KaReeNaaah/Desktop/title.csv')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

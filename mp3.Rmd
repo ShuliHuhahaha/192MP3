@@ -7,13 +7,13 @@ output: html_document
 ```{r}
 library(mdsr)
 library(RMySQL)
-#db <- dbConnect_scidb(dbname = "imdb")
-#db %>%
-  #dbGetQuery("SELECT * FROM kind_type;")
+db <- dbConnect_scidb(dbname = "imdb")
+db %>%
+  dbGetQuery("SELECT * FROM kind_type;")
 ```
 
 ```{r}
-#dbListTables(db)
+dbListTables(db)
 ```
 ```{r}
 #info_type_id = 3 AND info = 'Western'
@@ -30,29 +30,68 @@ library(RMySQL)
 
 ```{r}
 #movie <- dbGetQuery(db,
-                    "SELECT m.id, m.movie_id, m.info_type_id, m.info
-                    FROM movie_info m
-                    WHERE info_type_id = 3
-                    AND info = 'Western';"
+                   # "SELECT m.id, m.movie_id, m.info_type_id, m.info
+                   # FROM movie_info m
+                   # WHERE info_type_id = 3
+                   # AND info = 'Western';"
   
 #)
 
 ```
 
-
 ```{r}
-#write.csv(title, file = "title.csv")
-#write.csv(movie, file = "movie.csv")
+#western <- db %>%
+#  dbGetQuery("SELECT m.id, m.movie_id, m.info_type_id, m.info, t.id, t.title, t.production_year
+#              FROM movie_info m
+#              JOIN title t ON t.id = m.movie_id
+#              WHERE m.info_type_id = 3
+#              AND m.info = 'Western'
+#              AND t.kind_id = 1
+#              AND t.production_year >= 1900
+#              AND t.production_year <= 2015;"
+#             )
 ```
 
 ```{r}
-movie1 <- read.csv('/Users/KaReeNaaah/Desktop/movie.csv')
-title1 <- read.csv('/Users/KaReeNaaah/Desktop/title.csv')
+#write.csv(western, file = "western.csv")
 ```
 
 
+```{r}
+#western.new <- read.csv('/Users/KaReeNaaah/192MP3/western.csv')
+```
+
+```{r}
+#library(dplyr)
+#western.new <- western.new %>%
+#  select(movie_id,info,title,production_year) %>%
+#  group_by(production_year) %>%
+#  summarise(amount = n_distinct(movie_id)) %>%
+#  arrange(production_year)
+```
+
+```{r}
+#library(ggplot2)
+#ggplot(western.new, aes(x=production_year, y=amount)) + geom_line()
+```
 
 
+```{r}
+western.movie <- db %>%
+  dbGetQuery("SELECT m.movie_id, t.title, t.production_year, cn.name, ct.kind
+              FROM company_name cn
+              JOIN movie_companies mc ON mc.company_id = cn.id
+              JOIN company_type ct ON ct.id = mc.company_type_id
+              JOIN title t ON mc.movie_id = t.id
+              JOIN movie_info m ON t.id = m.movie_id
+              WHERE m.info_type_id = 3
+              AND m.info = 'Western'
+              AND t.kind_id = 1
+              AND t.production_year >= 1900
+              AND t.production_year <= 2015
+              ORDER BY t.production_year, cn.name;"
+             )
+```
 
 
 

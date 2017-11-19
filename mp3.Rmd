@@ -15,132 +15,74 @@ db %>%
 ```{r}
 dbListTables(db)
 ```
-```{r}
-#info_type_id = 3 AND info = 'Western'
-
-
-#title <- dbGetQuery(db,"
-#SELECT t.id, t.title, t.production_year
-#From title t
-#WHERE t.kind_id = 1
-#AND t.production_year >=1900
-#AND t.production_year <= 2015;")
-
-```
-
-```{r}
-#movie <- dbGetQuery(db,
-                   # "SELECT m.id, m.movie_id, m.info_type_id, m.info
-                   # FROM movie_info m
-                   # WHERE info_type_id = 3
-                   # AND info = 'Western';"
-  
-#)
-
-```
-
-```{r}
-western <- db %>%
- dbGetQuery("SELECT m.id, m.movie_id, m.info_type_id, m.info, t.id, t.title, t.production_year
-             FROM movie_info m
-             JOIN title t ON t.id = m.movie_id
-             WHERE m.info_type_id = 3
-             AND m.info = 'Western'
-             AND t.kind_id = 1
-             AND t.production_year >= 1900
-             AND t.production_year <= 2015;"
-            )
-```
-
-```{r}
-#write.csv(western, file = "western.csv")
-```
-
-
-```{r}
-western.new <- read.csv('/Users/hushuli/Desktop/senior/SDS192/MP3/western.csv')
-```
-
-```{r}
-library(dplyr)
-western.new <- western.new %>%
- select(movie_id,info,title,production_year) %>%
- group_by(production_year) %>%
- summarise(amount = n_distinct(movie_id)) %>%
- arrange(production_year)
-```
-
-```{r}
-library(ggplot2)
-ggplot(western.new, aes(x=production_year, y=amount)) + geom_line()
-```
-
 
 ```{r}
 western.movie <- db %>%
-  dbGetQuery("SELECT m.movie_id, t.title, t.production_year, cn.name, ct.kind, country_code
-              FROM company_name cn
-              JOIN movie_companies mc ON mc.company_id = cn.id
-              JOIN company_type ct ON ct.id = mc.company_type_id
-              JOIN title t ON mc.movie_id = t.id
-              JOIN movie_info m ON t.id = m.movie_id
+  dbGetQuery("SELECT m.movie_id, t.title, t.production_year
+              FROM movie_info m
+              JOIN title t ON t.id = m.movie_id
               WHERE m.info_type_id = 3
               AND m.info = 'Western'
               AND t.kind_id = 1
               AND t.production_year >= 1900
               AND t.production_year <= 2015
-              ORDER BY t.production_year, cn.name;"
+              ORDER BY production_year, title;"
              )
 ```
 
 ```{r}
-western.movie1 <- western.movie %>%
-  mutate(company_name = name, company_kind = kind, movie_title=title) %>%
-  select(-name, -kind, -title)
-
-company10 <- western.movie1 %>%
-  group_by(company_name) %>%
-  summarize(count = n()) %>% 
-  arrange(desc(count)) %>%
-  head(10)
-
-company_country <- western.movie1 %>%
-  filter(company_kind== "production companies") %>%
-  group_by(country_code) %>%
-  summarize(count_country = n()) %>%
-  arrange(desc(count_country)) %>%
-  head(10)
-
+save(western.movie, file = "western.movie.rda")
 ```
-
 
 ```{r}
-#compare the amount of western film produced by US companies and non-US companies
-western_foreign <- western.movie1 %>%
-  filter(country_code != "[us]") %>%
-  filter(company_kind== "production companies") %>%
-  select(movie_id, production_year) %>%
-  group_by(production_year) %>%
-  summarise(amount_foreign = n_distinct(movie_id)) %>%
-  arrange(production_year)
-
-western_us <- western.movie1 %>%
-  filter(country_code == "[us]") %>%
-  filter(company_kind== "production companies") %>%
-  select(movie_id, production_year) %>%
-  group_by(production_year) %>%
-  summarise(amount = n_distinct(movie_id)) %>%
-  arrange(production_year)
-  
-
-
-western_foreign_us <- western_foreign %>%
-  full_join(western_us) 
-
-
-ggplot(western_foreign_us, aes(x=production_year)) +
-  geom_line(aes(y=amount_foreign, col="amount_foreign")) +
-  geom_line(aes(y=amount, col="amount"))
-
-
+load(file = "western.movie.rda")
 ```
+
+```{r}
+movie.genre <- db %>%
+  dbGetQuery("SELECT m.movie_id, t.title, t.production_year, m.info
+              FROM movie_info m
+              JOIN title t ON t.id = m.movie_id
+              WHERE m.info_type_id = 3
+              AND t.kind_id = 1
+              AND t.production_year >= 1900
+              AND t.production_year <= 2015
+              ORDER BY production_year, title;"
+             )
+```
+
+```{r}
+save(movie.genre, file = "movie.genre.rda")
+```
+
+```{r}
+load(file = "movie.genre.rda")
+```
+
+```{r}
+library(dplyr)
+
+movie.graph <- left_join(western.movie, movie.genre, by = "movie_id") 
+```
+
+```{r}
+movie.graph2 <- movie.graph %>%
+  filter(production_year.x == 1912 & info != "Western") %>%
+  select(-production_year.y) 
+```
+
+```{r}
+movie.graph3 <- movie.graph %>%
+  filter(production_year.x == 2014 & info != "Western") %>%
+  select(-production_year.y)
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(movie.graph2, aes(x=info)) + geom_bar()
+```
+```{r}
+ggplot(movie.graph3, aes(x=info)) + geom_bar()
+```
+

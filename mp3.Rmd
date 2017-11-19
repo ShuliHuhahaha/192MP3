@@ -93,6 +93,9 @@ western.movie <- db %>%
              )
 ```
 
+```{r}
+write.csv(western.movie, file = "western_movie.csv")
+```
 
 
 

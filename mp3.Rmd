@@ -1,22 +1,25 @@
 ---
-title: "MP3"
+title: "Mini Project 3: Westerns Over Time"
 author: "Shuli Hu, Karina Huang, Iris Dong"
 output: html_document
 ---
 
-```{r}
+[Hook].
+This project aimed to examine how western movie production amount has changed over time from 1900 to 2015, and to analyze how these movies have been defined differently as time progress.
+
+```{r, message=FALSE, warning=FALSE}
 library(mdsr)
 library(RMySQL)
+library(dplyr)
+library(ggplot2)
+library(grid)
+library(gridExtra)
+library(ggthemes)
 db <- dbConnect_scidb(dbname = "imdb")
-db %>%
-  dbGetQuery("SELECT * FROM kind_type;")
 ```
 
-```{r}
-dbListTables(db)
-```
-
-```{r}
+```{r, eval=FALSE}
+##Selecting all western movies produced between 1900 and 2015
 western.movie <- db %>%
   dbGetQuery("SELECT m.movie_id, t.title, t.production_year
               FROM movie_info m
@@ -28,17 +31,18 @@ western.movie <- db %>%
               AND t.production_year <= 2015
               ORDER BY production_year, title;"
              )
-```
 
-```{r}
+##Saving western.movie as rda file
 save(western.movie, file = "western.movie.rda")
 ```
 
 ```{r}
+##Loading western.movie.rda
 load(file = "western.movie.rda")
 ```
 
-```{r}
+```{r,eval=FALSE}
+##Selecting all movies produced between 1900 and 2015
 movie.genre <- db %>%
   dbGetQuery("SELECT m.movie_id, t.title, t.production_year, m.info
               FROM movie_info m
@@ -49,40 +53,79 @@ movie.genre <- db %>%
               AND t.production_year <= 2015
               ORDER BY production_year, title;"
              )
-```
 
-```{r}
+##Saving movie.genre as rda file
 save(movie.genre, file = "movie.genre.rda")
 ```
 
 ```{r}
+##Loading movie.genre file
 load(file = "movie.genre.rda")
 ```
 
-```{r}
-library(dplyr)
+It appears that western movie production experienced its first peak in 1912 and in generally decreased until 2000. The second large rebound[word?] since 2000 happened recently at 2014. 
 
-movie.graph <- left_join(western.movie, movie.genre, by = "movie_id") 
+```{r}
+##Summarize western.movie dataset to see how many western movies are produced each year, arrange in descending order
+western.movie1 <- western.movie %>%
+  group_by(production_year) %>%
+  summarise(amount = n_distinct(movie_id)) %>%
+  arrange(desc(amount))
+
+head(western.movie1)
+```
+```{r}
+ggplot(western.movie1, aes(x= production_year, y=amount)) + 
+  geom_line() +
+  geom_point(aes(x= 1912, y=590), shape = 21, size=2, col = "red",fill = "red") +
+  annotate("text", x=1912, y=610, label = "1912", size = 4, color = "red") +
+  geom_point(aes(x= 2014, y=354), shape = 21, size=2, col = "red",fill = "red") +
+  annotate("text", x=2014, y=375, label = "2014", size = 4, color = "red") +
+  labs(title = "Western Movie Productions 1900-2015", x="Production Year", y="Number of Western Movies") +
+  theme(panel.grid = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        plot.title = element_text(size = 15, face = "bold", hjust = 0.5))
 ```
 
+Interestingly, compared with western movies in 1912, western movies in 2014 were more diversely defined in genres. For example, while most western movies still fall under the category "Short", we see emergence of new genres such as fantasy, horror and musical. This could explain why western movies periodically came back in fashion and increased in production amount, as directors could find ways to incorporate western movie materials into other genres or vice versa. However, this could also explain why Western movies are not as popular as they were before. Emergence of new genres could suggest a deviation from mainstream western genres, perhaps production has decreased because audience prefer movies of other genres.   
+
 ```{r}
-movie.graph2 <- movie.graph %>%
+##Joining datasets so movie.graph includes genre information other than "Western"
+movie.graph <- left_join(western.movie, movie.genre, by = "movie_id")
+
+##Filtering western movies produced in 1912
+movie.graph.1912 <- movie.graph %>%
   filter(production_year.x == 1912 & info != "Western") %>%
   select(-production_year.y) 
-```
 
-```{r}
-movie.graph3 <- movie.graph %>%
+##Filtering western movies produced in 2014
+movie.graph.2014 <- movie.graph %>%
   filter(production_year.x == 2014 & info != "Western") %>%
   select(-production_year.y)
 ```
 
-```{r}
-library(ggplot2)
+```{r, warning=FALSE, message=FALSE, fig.width=13, fig.height=10}
 
-ggplot(movie.graph2, aes(x=info)) + geom_bar()
+##Comparing western movie genres in 1912 and 2014 by graphs
+p2 <- ggplot(movie.graph.1912, aes(x=info)) + 
+  geom_bar() +
+  labs(title = "Western Movie Genres 1912", x="Movie Genre", y="Number of Movies") +
+  theme_economist() +
+  theme(axis.text = element_text(size = 20),
+        axis.title = element_text(size = 20, face = "bold"),
+        plot.title = element_text(size = 25, face = "bold", hjust = 0.5))
+
+p3 <- ggplot(movie.graph.2014, aes(x=info)) + 
+  geom_bar() +
+  labs(title = "Western Movie Genres 2014", x="Movie Genre", y="Number of Movies") +
+  theme_economist() +
+  theme(axis.text = element_text(size = 10),
+        axis.title = element_text(size = 20, face = "bold"),
+        plot.title = element_text(size = 25, face = "bold", hjust = 0.5),
+        plot.margin=unit(c(3,1,1,1),"cm"))
+
+grid.arrange(p2, p3)
 ```
-```{r}
-ggplot(movie.graph3, aes(x=info)) + geom_bar()
-```
+
 

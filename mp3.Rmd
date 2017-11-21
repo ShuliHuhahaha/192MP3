@@ -5,9 +5,9 @@ output: html_document
 ---
 
 [Hook].
-This project aimed to examine how western movie production amount has changed over time from 1900 to 2015, and to analyze how these movies have been defined differently as time progress.
+This project aimed to examine how western movie production amount has changed over time from 1900 to 2015, and to analyze how these movies have been defined differently as time progress. The data are retrived from IMDB.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message = FALSE, warning = FALSE, echo = FALSE}
 library(mdsr)
 library(RMySQL)
 library(dplyr)
@@ -15,11 +15,11 @@ library(ggplot2)
 library(grid)
 library(gridExtra)
 library(ggthemes)
-db <- dbConnect_scidb(dbname = "imdb")
 ```
 
-```{r, eval=FALSE}
+```{r, eval = FALSE}
 ##Selecting all western movies produced between 1900 and 2015
+db <- dbConnect_scidb(dbname = "imdb")
 western.movie <- db %>%
   dbGetQuery("SELECT m.movie_id, t.title, t.production_year
               FROM movie_info m
@@ -41,7 +41,7 @@ save(western.movie, file = "western.movie.rda")
 load(file = "western.movie.rda")
 ```
 
-```{r,eval=FALSE}
+```{r,eval = FALSE}
 ##Selecting all movies produced between 1900 and 2015
 movie.genre <- db %>%
   dbGetQuery("SELECT m.movie_id, t.title, t.production_year, m.info
@@ -63,37 +63,72 @@ save(movie.genre, file = "movie.genre.rda")
 load(file = "movie.genre.rda")
 ```
 
-It appears that western movie production experienced its first peak in 1912 and in generally decreased until 2000. The second large rebound[word?] since 2000 happened recently at 2014. 
+It appears that western movie production experienced its first peak in 1912 and in generally decreased until 2000. The second large rebound[word?] since 2000 happened recently at 2014. This trend is showned more clearly in the graph "Western Movie Productions 1900-2015" as below. 
+
+It is no surprising that the first peak of western movie is at 1912, as it was accompanied with the rise of film industry in hollywood (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64. ) Then as the release of new western movies starring famous Hollywood actors, such as *The Lone Ranger* starring Johnny Depp and *A Million Ways to Die in the West* starring Charlize Theron and Amanda Seyfried (IMDB.com), the western genre has come to its second spring in 2014. How has the western film changed to gain its revival? To answer this questions, we ran an analysis on genres that the western films often associate with throughout 1900 - 2015 and these two specific peaks.
 
 ```{r}
 ##Summarize western.movie dataset to see how many western movies are produced each year, arrange in descending order
 western.movie1 <- western.movie %>%
   group_by(production_year) %>%
-  summarise(amount = n_distinct(movie_id)) %>%
-  arrange(desc(amount))
+  summarise(western = n_distinct(movie_id)) %>%
+  arrange(desc(western))
 
 head(western.movie1)
 ```
+
 ```{r}
-ggplot(western.movie1, aes(x= production_year, y=amount)) + 
-  geom_line() +
-  geom_point(aes(x= 1912, y=590), shape = 21, size=2, col = "red",fill = "red") +
-  annotate("text", x=1912, y=610, label = "1912", size = 4, color = "red") +
-  geom_point(aes(x= 2014, y=354), shape = 21, size=2, col = "red",fill = "red") +
-  annotate("text", x=2014, y=375, label = "2014", size = 4, color = "red") +
-  labs(title = "Western Movie Productions 1900-2015", x="Production Year", y="Number of Western Movies") +
+##Joining datasets so movie.graph includes genre information other than "Western"
+movie.graph <- left_join(western.movie, movie.genre, by = "movie_id")
+
+western_total <- movie.graph %>%
+   summarize(total =n_distinct(movie_id))
+
+western_total_mulgenre <- movie.graph %>%
+   filter(info != "Western") %>%
+   summarize(total = n_distinct(movie_id))
+
+western_total
+western_total_mulgenre
+```
+
+
+```{r, message=FALSE, warning=FALSE}
+western_only <- movie.graph %>%
+  group_by(movie_id) %>%
+  summarize(total = n()) %>%
+  arrange(total) %>%
+  head(3742)
+
+western_only1 <- western_only %>%
+  left_join(movie.graph) %>%
+  arrange(production_year.x) %>%
+  group_by(production_year.x) %>%
+  summarize(pure_western = n()) %>%
+  mutate(production_year = production_year.x) %>%
+  select(-production_year.x) %>%
+  full_join(western.movie1)
+
+ggplot(western_only1, aes(x = production_year)) +
+  geom_line(aes(y = western, col = "western")) +
+  geom_line(aes(y = pure_western, col = "pure_western")) +
+  geom_point(aes(x = 1912, y = 590), shape = 21, size=2, col = "red",fill = "red") +
+  annotate("text", x = 1912, y = 610, label = "1912", size = 4, color = "red") +
+  geom_point(aes(x = 2014, y = 354), shape = 21, size = 2, col = "red",fill = "red") +
+  annotate("text", x = 2014, y = 375, label = "2014", size = 4, color = "red") +
+  labs(title = "Western Movie Productions 1900-2015", x = "Production Year", y = "Number of Western Movies") +
   theme(panel.grid = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(color = "black"),
         plot.title = element_text(size = 15, face = "bold", hjust = 0.5))
 ```
 
-Interestingly, compared with western movies in 1912, western movies in 2014 were more diversely defined in genres. For example, while most western movies still fall under the category "Short", we see emergence of new genres such as fantasy, horror and musical. This could explain why western movies periodically came back in fashion and increased in production amount, as directors could find ways to incorporate western movie materials into other genres or vice versa. However, this could also explain why Western movies are not as popular as they were before. Emergence of new genres could suggest a deviation from mainstream western genres, perhaps production has decreased because audience prefer movies of other genres.   
+
+Over the course of 1910 - 2015, there are 13693 western movies in total, and 9951 (73%) of them are tagged with at least one another genre. Pure western movies are those categorized only as western genre rather than being in multiple genres. This graph shows that during the prosperous period, western movies are more often made into other genres, instead of remaining only as western movies. 
+
+Interestingly, as shown in the graph below, compared with western movies in 1912, western movies in 2014 were more diversely defined in genres. For example, while most western movies still fall under the category "Short", we see emergence of new genres such as fantasy, horror and musical. This could explain why western movies periodically came back in fashion and increased in production amount, as directors could find ways to incorporate western movie materials into other genres or vice versa. However, this could also explain why western movies are not as popular as they were before. Emergence of new genres could suggest a deviation from mainstream western genres, perhaps production has decreased because audience prefer movies of other genres. To summarize, based on our analysis, the western genre will not die off because: 1). it is so central to the American culture. 2). The western films has kept evolving overtime, by combining other genres to cater to the contemporary audidence's taste.
 
 ```{r}
-##Joining datasets so movie.graph includes genre information other than "Western"
-movie.graph <- left_join(western.movie, movie.genre, by = "movie_id")
-
 ##Filtering western movies produced in 1912
 movie.graph.1912 <- movie.graph %>%
   filter(production_year.x == 1912 & info != "Western") %>%
@@ -108,24 +143,28 @@ movie.graph.2014 <- movie.graph %>%
 ```{r, warning=FALSE, message=FALSE, fig.width=13, fig.height=10}
 
 ##Comparing western movie genres in 1912 and 2014 by graphs
-p2 <- ggplot(movie.graph.1912, aes(x=info)) + 
+p2 <- ggplot(movie.graph.1912, aes(x = info)) + 
   geom_bar() +
-  labs(title = "Western Movie Genres 1912", x="Movie Genre", y="Number of Movies") +
+  labs(title = "Western Movie Genre Distribution 1912", x = "Movie Genre", y = "Number of Movies") +
   theme_economist() +
   theme(axis.text = element_text(size = 20),
         axis.title = element_text(size = 20, face = "bold"),
+        axis.title.x = element_text(margin = margin(t=20,r=0,b=0,l=0)),
+        axis.title.y = element_text(margin = margin(t=0,r=20,b=0,l=0)),
         plot.title = element_text(size = 25, face = "bold", hjust = 0.5))
 
 p3 <- ggplot(movie.graph.2014, aes(x=info)) + 
   geom_bar() +
-  labs(title = "Western Movie Genres 2014", x="Movie Genre", y="Number of Movies") +
+  labs(title = "Western Movie Genre Distribution 2014", x="Movie Genre", y="Number of Movies") +
   theme_economist() +
-  theme(axis.text = element_text(size = 10),
+  theme(axis.text = element_text(size = 8),
         axis.title = element_text(size = 20, face = "bold"),
+        axis.title.x = element_text(margin = margin(t=20,r=0,b=0,l=0)),
+        axis.title.y = element_text(margin = margin(t=0,r=20,b=0,l=0)),
         plot.title = element_text(size = 25, face = "bold", hjust = 0.5),
-        plot.margin=unit(c(3,1,1,1),"cm"))
+        plot.margin = unit(c(3,1,1,1),"cm"))
 
 grid.arrange(p2, p3)
 ```
 
-
+Github link: https://github.com/ShuliHuhahaha/192MP3

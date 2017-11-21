@@ -4,8 +4,7 @@ author: "Shuli Hu, Karina Huang, Iris Dong"
 output: html_document
 ---
 
-[Hook].
-This project aimed to examine how western movie production amount has changed over time from 1900 to 2015, and to analyze how these movies have been defined differently as time progress. The data are retrived from IMDB.
+This project aimed to examine how western movie production amount has changed over time from 1900 to 2015, and to analyze how these movies have been defined differently as time progress. The data were retrived from IMDB.
 
 ```{r, message = FALSE, warning = FALSE, echo = FALSE}
 library(mdsr)
@@ -63,9 +62,9 @@ save(movie.genre, file = "movie.genre.rda")
 load(file = "movie.genre.rda")
 ```
 
-It appears that western movie production experienced its first peak in 1912 and in generally decreased until 2000. The second large rebound[word?] since 2000 happened recently at 2014. This trend is showned more clearly in the graph "Western Movie Productions 1900-2015" as below. 
+It appears that western movie production experienced its first peak in 1912 and in general decreased until 2000. The second large rebound since 2000 happened recently at 2014. This trend is shown more clearly in the graph "Western Movie Productions 1900-2015" as below. 
 
-It is no surprising that the first peak of western movie is at 1912, as it was accompanied with the rise of film industry in hollywood (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64. ) Then as the release of new western movies starring famous Hollywood actors, such as *The Lone Ranger* starring Johnny Depp and *A Million Ways to Die in the West* starring Charlize Theron and Amanda Seyfried (IMDB.com), the western genre has come to its second spring in 2014. How has the western film changed to gain its revival? To answer this questions, we ran an analysis on genres that the western films often associate with throughout 1900 - 2015 and these two specific peaks.
+It is not surprising that the first peak of western movie is at 1912, as it was accompanied with the rise of film industry in hollywood (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64. ) Then as the release of new western movies starring famous Hollywood actors, such as *The Lone Ranger* starring Johnny Depp and *A Million Ways to Die in the West* starring Charlize Theron and Amanda Seyfried (IMDB.com), the western genre has come to its second spring in 2014. How has the western film changed to gain its revival? To answer this question, we ran an analysis on genres that the western films often associate with throughout 1900 - 2015 and during these two specific peaks.
 
 ```{r}
 ##Summarize western.movie dataset to see how many western movies are produced each year, arrange in descending order
@@ -88,8 +87,8 @@ western_total_mulgenre <- movie.graph %>%
    filter(info != "Western") %>%
    summarize(total = n_distinct(movie_id))
 
-western_total
-western_total_mulgenre
+western_total ##Total number of western movies produced from 1900-2015
+western_total_mulgenre ##Number of western movies also defined by other genres  
 ```
 
 
@@ -98,7 +97,7 @@ western_only <- movie.graph %>%
   group_by(movie_id) %>%
   summarize(total = n()) %>%
   arrange(total) %>%
-  head(3742)
+  head(3742) ##Number of western movies only defined as "Western" : 13693-9951=3742
 
 western_only1 <- western_only %>%
   left_join(movie.graph) %>%
@@ -120,11 +119,13 @@ ggplot(western_only1, aes(x = production_year)) +
   theme(panel.grid = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(color = "black"),
-        plot.title = element_text(size = 15, face = "bold", hjust = 0.5))
+        plot.title = element_text(size = 15, face = "bold", hjust = 0.5)) +
+  scale_color_discrete(name = "Genre Types",
+                       labels = c("Pure Western", "Western Total"))
 ```
 
 
-Over the course of 1910 - 2015, there are 13693 western movies in total, and 9951 (73%) of them are tagged with at least one another genre. Pure western movies are those categorized only as western genre rather than being in multiple genres. This graph shows that during the prosperous period, western movies are more often made into other genres, instead of remaining only as western movies. 
+Over the course of 1900 - 2015, there are 13693 western movies in total (As blue line in the graph above), and 9951 (73%) of them were tagged with at least one another genre. Pure western (As red line in the graph above) movies were those categorized only as western genre rather than being in multiple genres. This graph shows that during the prosperous period, western movies are more often made into other genres, instead of remaining only as western movies. 
 
 Interestingly, as shown in the graph below, compared with western movies in 1912, western movies in 2014 were more diversely defined in genres. For example, while most western movies still fall under the category "Short", we see emergence of new genres such as fantasy, horror and musical. This could explain why western movies periodically came back in fashion and increased in production amount, as directors could find ways to incorporate western movie materials into other genres or vice versa. However, this could also explain why western movies are not as popular as they were before. Emergence of new genres could suggest a deviation from mainstream western genres, perhaps production has decreased because audience prefer movies of other genres. To summarize, based on our analysis, the western genre will not die off because: 1). it is so central to the American culture. 2). The western films has kept evolving overtime, by combining other genres to cater to the contemporary audidence's taste.
 

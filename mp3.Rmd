@@ -58,6 +58,58 @@ save(movie.genre, file = "movie.genre.rda")
 ```
 
 ```{r}
+media.type <- db %>%
+  dbGetQuery("SELECT t.production_year, t.kind_id, m.movie_id 
+              FROM title t
+              JOIN movie_info m ON t.id = m.movie_id
+              WHERE info = 'Western'
+              AND m.info_type_id = 3;"
+              )
+
+media.type = na.omit(media.type)
+
+            
+media.type <- media.type %>%
+  mutate(production_year = parse_number(production_year), kind_id = parse_number(kind_id), movie_id=parse_number(movie_id))
+
+
+media.type0 <- media.type %>%
+  arrange(production_year) %>%
+  group_by(kind_id) %>%
+  summarise(num = count(kind_id))
+
+
+media.type1 <- media.type %>%
+  arrange(production_year) %>%
+  filter(kind_id==1) %>%
+  group_by(production_year) %>%
+  summarise(num = count(kind_id))
+
+media.type2 <- media.type %>%
+  arrange(production_year) %>%
+  filter(kind_id == 2) %>%
+  group_by(production_year) %>%
+  summarise(num=count(kind_id))
+
+media.type.n <- function(n) {
+  media.type %>%
+    filter(kind_id == n) %>%
+    group_by(production_year) %>%
+    summarize(num = count(kind_id))
+}
+
+media.type.whole <- media.type.n(n=1) %>%
+  full_join(media.type.n(n=2), by="production_year")
+
+media.type.whole
+
+pp <- ggplot(media.type2, aes(x = production_year, y=num)) +
+  geom_line()
+
+pp
+```
+
+```{r}
 ##Loading movie.genre file
 load(file = "movie.genre.rda")
 ```

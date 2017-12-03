@@ -220,4 +220,18 @@ p3 <- ggplot(movie.graph.2014, aes(x=info)) +
 grid.arrange(p2, p3)
 ```
 
+
+
+```{r}
+movie.genre.2014 <- movie.genre %>%
+  filter(production_year == 2014) %>%
+  group_by(Genre = info) %>%
+  summarise(Number_Movies = n_distinct(movie_id)) %>%
+  arrange(desc(Number_Movies))
+
+print(movie.genre.2014)
+```
+
+
+
 Github link: https://github.com/ShuliHuhahaha/192MP3

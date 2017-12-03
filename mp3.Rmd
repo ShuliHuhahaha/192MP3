@@ -1,10 +1,10 @@
 ---
-title: "Mini Project 3: Westerns Over Time"
+title: "Mini Project 4: Have Western Movies Died?"
 author: "Shuli Hu, Karina Huang, Iris Dong"
 output: html_document
 ---
 
-This project aimed to examine how western movie production amount has changed over time from 1900 to 2015, and to analyze how these movies have been defined differently as time progress. The data were retrived from IMDB.
+
 
 ```{r, message = FALSE, warning = FALSE, echo = FALSE}
 library(mdsr)
@@ -15,6 +15,8 @@ library(grid)
 library(gridExtra)
 library(ggthemes)
 ```
+
+
 
 ```{r, eval = FALSE}
 ##Selecting all western movies produced between 1900 and 2015
@@ -57,66 +59,21 @@ movie.genre <- db %>%
 save(movie.genre, file = "movie.genre.rda")
 ```
 
-```{r}
-media.type <- db %>%
-  dbGetQuery("SELECT t.production_year, t.kind_id, m.movie_id 
-              FROM title t
-              JOIN movie_info m ON t.id = m.movie_id
-              WHERE info = 'Western'
-              AND m.info_type_id = 3;"
-              )
-
-media.type = na.omit(media.type)
-
-            
-media.type <- media.type %>%
-  mutate(production_year = parse_number(production_year), kind_id = parse_number(kind_id), movie_id=parse_number(movie_id))
-
-
-media.type0 <- media.type %>%
-  arrange(production_year) %>%
-  group_by(kind_id) %>%
-  summarise(num = count(kind_id))
-
-
-media.type1 <- media.type %>%
-  arrange(production_year) %>%
-  filter(kind_id==1) %>%
-  group_by(production_year) %>%
-  summarise(num = count(kind_id))
-
-media.type2 <- media.type %>%
-  arrange(production_year) %>%
-  filter(kind_id == 2) %>%
-  group_by(production_year) %>%
-  summarise(num=count(kind_id))
-
-media.type.n <- function(n) {
-  media.type %>%
-    filter(kind_id == n) %>%
-    group_by(production_year) %>%
-    summarize(num = count(kind_id))
-}
-
-media.type.whole <- media.type.n(n=1) %>%
-  full_join(media.type.n(n=2), by="production_year")
-
-media.type.whole
-
-pp <- ggplot(media.type2, aes(x = production_year, y=num)) +
-  geom_line()
-
-pp
-```
 
 ```{r}
 ##Loading movie.genre file
 load(file = "movie.genre.rda")
 ```
 
-It appears that western movie production experienced its first peak in 1912 and in general decreased until 2000. The second large rebound since 2000 happened recently at 2014. This trend is shown more clearly in the graph "Western Movie Productions 1900-2015" as below. 
+Lede:
 
-It is not surprising that the first peak of western movie is at 1912, as it was accompanied with the rise of film industry in hollywood (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64. ) Then as the release of new western movies starring famous Hollywood actors, such as *The Lone Ranger* starring Johnny Depp and *A Million Ways to Die in the West* starring Charlize Theron and Amanda Seyfried (IMDB.com), the western genre has come to its second spring in 2014. How has the western film changed to gain its revival? To answer this question, we ran an analysis on genres that the western films often associate with throughout 1900 - 2015 and during these two specific peaks.
+Audience is constantly seeking fantasy in movies. From the recent movies on foreign planet like *Avatar*, to the earlier oriental topics like *Mulan*, to the ancient Egyptian topics like *Cleopatra* in the 60s, exotic element has always been the core in Hollywood movies. Western, being the very first exotic yet American genre that led to the birth of Hollywood  (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64. ), seems to get fewer attention in recent years. Is it really?
+
+
+Nutgraph:
+
+While western movie production took a dramatic downfall after its peak in 1912, and has gradually decreased for the past century, the genre seemed to have come back into fashion around 2014. It is not surprising that the first peak of western movie is at 1912, as it was accompanied with the rise of film industry in hollywood (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64. ) Then as the release of new western movies starring famous Hollywood actors, such as *The Lone Ranger* starring Johnny Depp and *A Million Ways to Die in the West* starring Charlize Theron and Amanda Seyfried (IMDB.com), the western genre has come to its second spring in 2014. How has the western film changed to gain its revival? In this article, we explore some possible explanation based on our data analysis adopted from IMDB.com.
+
 
 ```{r}
 ##Summarize western.movie dataset to see how many western movies are produced each year, arrange in descending order
@@ -143,6 +100,7 @@ western_total ##Total number of western movies produced from 1900-2015
 western_total_mulgenre ##Number of western movies also defined by other genres  
 ```
 
+First, we looked at how the genre has evolved over the past 100 years and during these two specific peaks. It turns out that the recent Western movies have included more genres than the ones produced 100 years ago. Over the course of 1900 - 2015, there are 13693 western movies in total (As blue line in the graph above), and 9951 (73%) of them were tagged with at least one another genre. Pure western (As red line in the graph above) movies were those categorized only as western genre rather than being in multiple genres. This graph shows that during the prosperous period, western movies are more often made into other genres, instead of remaining only as western movies. 
 
 ```{r, message=FALSE, warning=FALSE}
 western_only <- movie.graph %>%
@@ -177,9 +135,7 @@ ggplot(western_only1, aes(x = production_year)) +
 ```
 
 
-Over the course of 1900 - 2015, there are 13693 western movies in total (As blue line in the graph above), and 9951 (73%) of them were tagged with at least one another genre. Pure western (As red line in the graph above) movies were those categorized only as western genre rather than being in multiple genres. This graph shows that during the prosperous period, western movies are more often made into other genres, instead of remaining only as western movies. 
-
-Interestingly, as shown in the graph below, compared with western movies in 1912, western movies in 2014 were more diversely defined in genres. For example, while most western movies still fall under the category "Short", we see emergence of new genres such as fantasy, horror and musical. This could explain why western movies periodically came back in fashion and increased in production amount, as directors could find ways to incorporate western movie materials into other genres or vice versa. However, this could also explain why western movies are not as popular as they were before. Emergence of new genres could suggest a deviation from mainstream western genres, perhaps production has decreased because audience prefer movies of other genres. To summarize, based on our analysis, the western genre will not die off because: 1). it is so central to the American culture. 2). The western films has kept evolving overtime, by combining other genres to cater to the contemporary audidence's taste.
+Interestingly, as shown in the graph below, compared with western movies in 1912, western movies in 2014 were more diversely defined in genres. For example, while most western movies still fall under the category "Short", we see emergence of new genres such as fantasy, horror and musical. This could explain why western movies periodically came back in fashion and increased in production amount, as directors could find ways to incorporate western movie materials into other genres or vice versa. However, this could also explain why western movies are not as popular as they were before. Emergence of new genres could suggest a deviation from mainstream western genres, perhaps production has decreased because audience prefer movies of other genres.
 
 ```{r}
 ##Filtering western movies produced in 1912
@@ -223,6 +179,8 @@ grid.arrange(p2, p3)
 
 
 ```{r}
+# Extra information on the genre population in 2014
+
 movie.genre.2014 <- movie.genre %>%
   filter(production_year == 2014) %>%
   group_by(Genre = info) %>%
@@ -231,6 +189,91 @@ movie.genre.2014 <- movie.genre %>%
 
 print(movie.genre.2014)
 ```
+
+```{r, warning=FALSE, eval = FALSE}
+media.type <- db %>%
+  dbGetQuery("SELECT t.production_year, t.kind_id, m.movie_id 
+              FROM title t
+              JOIN movie_info m ON t.id = m.movie_id
+              WHERE info = 'Western'
+              AND m.info_type_id = 3;"
+              )
+
+##Saving media.type as rda file
+save(media.type, file = "media.type.rda")
+```
+
+
+Secondly, we are also interested in looking at other types of media productions in the western genre. While movie is always the major type of media production fond of the western genre, some other types of media production, such as TV movies and video movies, are coming into fashion. 
+
+
+```{r, warning=FALSE, eval = FALSE}
+# Looking at all types of media production in Western Genre
+
+media.type = na.omit(media.type)
+
+media.type <- media.type %>%
+  mutate(production_year = parse_number(production_year), kind_id = parse_number(kind_id), movie_id=parse_number(movie_id))
+
+#the number of 7 types of media 
+media.type0 <- media.type %>%
+  arrange(production_year) %>%
+  group_by(kind_id) %>%
+  summarise(num = count(kind_id))
+
+#media type: movie
+media.type1 <- media.type %>%
+  arrange(production_year) %>%
+  filter(kind_id==1) %>%
+  group_by(production_year) %>%
+  summarise(num1 = count(kind_id))
+
+#media type: tv series
+media.type2 <- media.type %>%
+  arrange(production_year) %>%
+  filter(kind_id == 2) %>%
+  group_by(production_year) %>%
+  summarise(num2 = count(kind_id))
+
+#media type: tv movies
+media.type3 <- media.type %>%
+  arrange(production_year) %>%
+  filter(kind_id == 3) %>%
+  group_by(production_year) %>%
+  summarise(num3 = count(kind_id))
+
+#media type: video movies
+media.type4 <- media.type %>%
+  arrange(production_year) %>%
+  filter(kind_id == 4) %>%
+  group_by(production_year) %>%
+  summarise(num4 = count(kind_id))
+
+#media type: tv series, tv movies, video movies. Besides movies, only these three types of media production have significant data.
+
+media.type.whole <- media.type1 %>%
+  full_join(media.type2, by="production_year") %>%
+  full_join(media.type3, by="production_year") %>%
+  full_join(media.type4, by="production_year") 
+
+pp_tv <- ggplot(media.type.whole, aes(x = production_year)) +
+  geom_line(aes(y=num2, color = "tv series")) +
+  scale_color_discrete(name = "media type")
+
+pp_tv_movie <- ggplot(media.type.whole, aes(x = production_year)) +
+  geom_line(aes(y=num3, color = "tv movies")) +
+  scale_color_discrete(name = "media type")
+
+pp_video <- ggplot(media.type.whole, aes(x = production_year)) +
+  geom_line(aes(y=num4, color = "video movies"))  +
+  scale_color_discrete(name = "media type")
+
+grid.arrange(pp_tv, pp_tv_movie, pp_video)
+
+```
+
+
+ To summarize, based on our analysis, the western genre will not die off because: 1). it is so central to the American culture. 2). The western films has kept evolving overtime, by combining other genres to cater to the contemporary audidence's taste.
 
 
 

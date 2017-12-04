@@ -67,7 +67,7 @@ load(file = "movie.genre.rda")
 
 Lede:
 
-Audience is constantly seeking exoticism in movies. From the ancient Egyptian mistery of *Cleopatra*, the legend of oriental disney princess *Mulan*, and worlds of extraterrestrial life like *Avatar*, exotic elements have always been celebrated by Hollywood and the Academy Awards. Yet, the Western genre, being the very first American and exotic kind that led to the birth of Hollywood  (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64. ) seems to have faded from sight over time. 
+Audience is constantly seeking exoticism in movies. From the ancient Egyptian mistery of *Cleopatra*, to the legend of oriental disney princess *Mulan*, and then worlds of extraterrestrial life like *Avatar*, exotic elements have always been celebrated by Hollywood and the Academy Awards. Yet, the Western genre, being the very first American and exotic kind that led to the birth of Hollywood  (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64. ) seems to have faded from sight over time. 
 
 
 Nutgraph:

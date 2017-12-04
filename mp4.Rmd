@@ -1,0 +1,317 @@
+---
+title: "Mini Project 4: Have Western Movies Died?"
+author: "Shuli Hu, Karina Huang, Iris Dong"
+output: html_document
+---
+
+
+
+```{r, message = FALSE, warning = FALSE, echo = FALSE}
+library(mdsr)
+library(RMySQL)
+library(dplyr)
+library(ggplot2)
+library(grid)
+library(gridExtra)
+library(ggthemes)
+```
+
+```{r}
+##Selecting all western movies produced between 1900 and 2015
+db <- dbConnect_scidb(dbname = "imdb")
+western.movie <- db %>%
+  dbGetQuery("SELECT m.movie_id, t.title, t.production_year, ci.person_id
+              FROM role_type r
+              JOIN cast_info ci ON ci.role_id = r.id
+              JOIN title t ON t.id = ci.movie_id
+              JOIN movie_info m ON t.id = m.movie_id
+              WHERE m.info_type_id = 3
+              AND r.id = 8
+              AND m.info = 'Western'
+              AND t.kind_id = 1
+              AND t.production_year >= 1900
+              AND t.production_year <= 2015
+              ORDER BY production_year, title;"
+             )
+
+##Saving western.movie as rda file
+save(western.movie, file = "western.movie.rda")
+```
+
+```{r}
+##Loading western.movie.rda
+load(file = "western.movie.rda")
+```
+
+```{r}
+##Selecting all movies produced between 1900 and 2015
+movie.genre <- db %>%
+  dbGetQuery("SELECT m.movie_id, t.title, t.production_year, m.info
+              FROM movie_info m
+              JOIN title t ON t.id = m.movie_id
+              WHERE m.info_type_id = 3
+              AND t.kind_id = 1
+              AND t.production_year >= 1900
+              AND t.production_year <= 2015
+              ORDER BY production_year, title;"
+             )
+
+##Saving movie.genre as rda file
+save(movie.genre, file = "movie.genre.rda")
+```
+
+```{r}
+##Loading movie.genre file
+load(file = "movie.genre.rda")
+```
+
+Lede:
+
+Audience is constantly seeking exoticism in movies. From the ancient Egyptian mistery of *Cleopatra*, to the legend of oriental disney princess *Mulan*, and then worlds of extraterrestrial life like *Avatar*, exotic elements have always been celebrated by Hollywood and the Academy Awards. Yet, the Western genre, being the very first American and exotic kind that led to the birth of Hollywood  (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64. ) seems to have faded from sight over time. 
+
+
+Nutgraph:
+
+Since its golden peak with the rise of Hollywood film industry in 1912 (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64), western movie production has taken a dramatic downfall and gradually decreased for the past century. However, the genre seemed to have come back into fashion around 2014, with the release of new western movies like * The Lone Ranger* and *A Million Ways to Die in the West*, starring famous actors such as Johnny Depp and Charlize Theron respectively. Yet, given the average IMDB ratings of these movies (e.g. 6.5/10 for *The Lone Ranger*; 6.1/10 for *A Million Ways to Die in the West*), we may not expect a western genre revival with the increasing productions. What has or has not made this revival likely or possible? In this article, we explored some possible explanation based on our data analysis adopted from IMDB.com.  
+
+
+```{r}
+##Summarize western.movie dataset to see how many western movies are produced each year, arrange in descending order
+western.movie1 <- western.movie %>%
+  group_by(production_year) %>%
+  summarise(western = n_distinct(movie_id)) %>%
+  arrange(desc(western))
+
+head(western.movie1)
+```
+
+```{r}
+##Joining datasets so movie.graph includes genre information other than "Western"
+movie.graph <- left_join(western.movie, movie.genre, by = "movie_id")
+
+western_total <- movie.graph %>%
+   summarize(total =n_distinct(movie_id))
+
+western_total_mulgenre <- movie.graph %>%
+   filter(info != "Western") %>%
+   summarize(total = n_distinct(movie_id))
+
+western_total ##Total number of western movies produced from 1900-2015
+western_total_mulgenre ##Number of western movies also defined by other genres  
+```
+
+First, we looked at how the genre has evolved over the past 100 years and during these two specific peaks. It turns out that the recent Western movies have included more genres than the ones produced 100 years ago. Over the course of 1900 - 2015, there are 13693 western movies in total (As blue line in the graph above), and 9951 (73%) of them were tagged with at least one another genre. Pure western (As red line in the graph above) movies were those categorized only as western genre rather than being in multiple genres. This graph shows that during the prosperous period, western movies are more often made into other genres, instead of remaining only as western movies. 
+
+```{r, message=FALSE, warning=FALSE}
+western_only <- movie.graph %>%
+  group_by(movie_id) %>%
+  summarize(total = n()) %>%
+  arrange(total) %>%
+  head(3742) ##Number of western movies only defined as "Western" : 13693-9951=3742
+
+western_only1 <- western_only %>%
+  left_join(movie.graph) %>%
+  arrange(production_year.x) %>%
+  group_by(production_year.x) %>%
+  summarize(pure_western = n()) %>%
+  mutate(production_year = production_year.x) %>%
+  select(-production_year.x) %>%
+  full_join(western.movie1)
+
+ggplot(western_only1, aes(x = production_year)) +
+  geom_line(aes(y = western, col = "western")) +
+  geom_line(aes(y = pure_western, col = "pure_western")) +
+  geom_point(aes(x = 1912, y = 590), shape = 21, size=2, col = "red",fill = "red") +
+  annotate("text", x = 1912, y = 610, label = "1912", size = 4, color = "red") +
+  geom_point(aes(x = 2014, y = 354), shape = 21, size = 2, col = "red",fill = "red") +
+  annotate("text", x = 2014, y = 375, label = "2014", size = 4, color = "red") +
+  labs(title = "Western Movie Productions 1900-2015", x = "Production Year", y = "Number of Western Movies") +
+  theme(panel.grid = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        plot.title = element_text(size = 15, face = "bold", hjust = 0.5)) +
+  scale_color_discrete(name = "Genre Types",
+                       labels = c("Pure Western", "Western Total"))
+```
+
+Interestingly, as shown in the graph below, compared with western movies in 1912, western movies in 2014 were more diversely defined in genres. For example, while most western movies still fall under the category "Short", we see emergence of new genres such as fantasy, horror and musical. This could explain why western movies periodically came back in fashion and increased in production amount, as directors could find ways to incorporate western movie materials into other genres or vice versa. However, this could also explain why western movies are not as popular as they were before. Emergence of new genres could suggest a deviation from mainstream western genres, perhaps production has decreased because audience prefer movies of other genres.
+
+```{r}
+##Filtering western movies produced in 1912
+movie.graph.1912 <- movie.graph %>%
+  filter(production_year.x == 1912 & info != "Western") %>%
+  select(-production_year.y) 
+
+##Filtering western movies produced in 2014
+movie.graph.2014 <- movie.graph %>%
+  filter(production_year.x == 2014 & info != "Western") %>%
+  select(-production_year.y)
+```
+
+```{r, warning=FALSE, message=FALSE, fig.width=13, fig.height=10}
+
+##Comparing western movie genres in 1912 and 2014 by graphs
+p2 <- ggplot(movie.graph.1912, aes(x = info)) + 
+  geom_bar() +
+  labs(title = "Western Movie Genre Distribution 1912", x = "Movie Genre", y = "Number of Movies") +
+  theme_economist() +
+  theme(axis.text = element_text(size = 20),
+        axis.title = element_text(size = 20, face = "bold"),
+        axis.title.x = element_text(margin = margin(t=20,r=0,b=0,l=0)),
+        axis.title.y = element_text(margin = margin(t=0,r=20,b=0,l=0)),
+        plot.title = element_text(size = 25, face = "bold", hjust = 0.5))
+
+p3 <- ggplot(movie.graph.2014, aes(x=info)) + 
+  geom_bar() +
+  labs(title = "Western Movie Genre Distribution 2014", x="Movie Genre", y="Number of Movies") +
+  theme_economist() +
+  theme(axis.text = element_text(size = 8),
+        axis.title = element_text(size = 20, face = "bold"),
+        axis.title.x = element_text(margin = margin(t=20,r=0,b=0,l=0)),
+        axis.title.y = element_text(margin = margin(t=0,r=20,b=0,l=0)),
+        plot.title = element_text(size = 25, face = "bold", hjust = 0.5),
+        plot.margin = unit(c(3,1,1,1),"cm"))
+
+grid.arrange(p2, p3)
+```
+
+```{r}
+# Extra information on the genre population in 2014
+movie.genre.2014 <- movie.genre %>%
+  filter(production_year == 2014) %>%
+  group_by(Genre = info) %>%
+  summarise(Number_Movies = n_distinct(movie_id)) %>%
+  arrange(desc(Number_Movies))
+
+print(movie.genre.2014)
+```
+
+```{r, warning=FALSE}
+media.type <- db %>%
+  dbGetQuery("SELECT t.production_year, t.kind_id, m.movie_id 
+              FROM title t
+              JOIN movie_info m ON t.id = m.movie_id
+              WHERE info = 'Western'
+              AND m.info_type_id = 3;"
+              )
+
+##Saving media.type as rda file
+save(media.type, file = "media.type.rda")
+```
+
+
+Secondly, we are also interested in looking at other types of media productions in the western genre. While movie is always the major type of media production fond of the western genre, some other types of media production, such as TV movies and video movies, are coming into fashion. This trend suggests that perhaps "western" as a genre is only fading from the film industry, we might expect to see its revival elsewhere in the near future. 
+
+
+```{r, warning=FALSE}
+# Looking at all types of media production in Western Genre
+
+media.type = na.omit(media.type)
+
+media.type <- media.type %>%
+  mutate(production_year = parse_number(production_year), kind_id = parse_number(kind_id), movie_id=parse_number(movie_id))
+
+#the number of 7 types of media 
+media.type0 <- media.type %>%
+  arrange(production_year) %>%
+  group_by(kind_id) %>%
+  summarise(num = count(kind_id))
+
+#media type: movie
+media.type1 <- media.type %>%
+  arrange(production_year) %>%
+  filter(kind_id==1) %>%
+  group_by(production_year) %>%
+  summarise(num1 = count(kind_id))
+
+#media type: tv series
+media.type2 <- media.type %>%
+  arrange(production_year) %>%
+  filter(kind_id == 2) %>%
+  group_by(production_year) %>%
+  summarise(num2 = count(kind_id))
+
+#media type: tv movies
+media.type3 <- media.type %>%
+  arrange(production_year) %>%
+  filter(kind_id == 3) %>%
+  group_by(production_year) %>%
+  summarise(num3 = count(kind_id))
+
+#media type: video movies
+media.type4 <- media.type %>%
+  arrange(production_year) %>%
+  filter(kind_id == 4) %>%
+  group_by(production_year) %>%
+  summarise(num4 = count(kind_id))
+
+#media type: tv series, tv movies, video movies. Besides movies, only these three types of media production have significant data.
+
+media.type.whole <- media.type1 %>%
+  full_join(media.type2, by="production_year") %>%
+  full_join(media.type3, by="production_year") %>%
+  full_join(media.type4, by="production_year") 
+
+pp_tv <- ggplot(media.type.whole, aes(x = production_year)) +
+  geom_line(aes(y=num2, color = "TV series")) +
+  scale_color_discrete(name = "media type") +
+  labs(x = "Production Year", y = "quantity")
+
+pp_tv_movie <- ggplot(media.type.whole, aes(x = production_year)) +
+  geom_line(aes(y=num3, color = "TV movies")) +
+  scale_color_discrete(name = "media type") +
+  labs(x = "Production Year", y = "quantity")
+
+pp_video <- ggplot(media.type.whole, aes(x = production_year)) +
+  geom_line(aes(y=num4, color = "video movies"))  +
+  scale_color_discrete(name = "media type") +
+  labs(x = "Production Year", y = "quantity")
+
+grid.arrange(pp_tv, pp_tv_movie, pp_video)
+
+```
+
+```{r}
+##Selecting all directors who directed western movies between 1900 and 2015
+db <- dbConnect_scidb(dbname = "imdb")
+director.genre <- db %>%
+  dbGetQuery("SELECT m.movie_id, t.title, t.production_year, m.info, ci.person_id
+              FROM role_type r
+              JOIN cast_info ci ON ci.role_id = r.id
+              JOIN title t ON ci.movie_id = t.id
+              JOIN movie_info m ON t.id = m.movie_id
+              WHERE m.info_type_id = 3
+              AND r.id = 8
+              AND t.kind_id = 1
+              AND t.production_year >= 1900
+              AND t.production_year <= 2015
+              ORDER BY production_year, title;"
+             )
+
+##Saving movie.genre as rda file
+save(director.genre, file = "director.genre.rda")
+```
+
+```{r}
+load(file = "director.genre.rda")
+```
+
+```{r}
+#Dataset looks at directors' history of directing Western movies
+director <- left_join(western.movie, director.genre, by = "person_id") %>%
+  select(person_id, movie_id.y, title.y, info, production_year.y) %>%
+  group_by(person_id,production_year.y,info) %>%
+  summarise(amount = n_distinct(title.y)) %>%
+  filter(info == "Western")
+```
+
+```{r, warning=FALSE, message=FALSE}
+ggplot(director,aes(x=production_year.y, y=amount)) + 
+  geom_line() +
+  labs(x = "Year", y = "Number of Western Movies") +
+  theme(legend.position = "none") 
+```
+
+Finally, we looked at how directing history of those who had directed western movies changed over time. It appears that the fact that western genre is dying in the film industry could be attributed to the fact that less directors are directing western movies, and that directors are directing less movies of such genre.   
+
+Github link: https://github.com/ShuliHuhahaha/192MP3

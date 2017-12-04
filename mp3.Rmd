@@ -16,16 +16,17 @@ library(gridExtra)
 library(ggthemes)
 ```
 
-
-
-```{r, eval = FALSE}
+```{r}
 ##Selecting all western movies produced between 1900 and 2015
 db <- dbConnect_scidb(dbname = "imdb")
 western.movie <- db %>%
-  dbGetQuery("SELECT m.movie_id, t.title, t.production_year
-              FROM movie_info m
-              JOIN title t ON t.id = m.movie_id
+  dbGetQuery("SELECT m.movie_id, t.title, t.production_year, ci.person_id
+              FROM role_type r
+              JOIN cast_info ci ON ci.role_id = r.id
+              JOIN title t ON t.id = ci.movie_id
+              JOIN movie_info m ON t.id = m.movie_id
               WHERE m.info_type_id = 3
+              AND r.id = 8
               AND m.info = 'Western'
               AND t.kind_id = 1
               AND t.production_year >= 1900
@@ -42,7 +43,7 @@ save(western.movie, file = "western.movie.rda")
 load(file = "western.movie.rda")
 ```
 
-```{r,eval = FALSE}
+```{r}
 ##Selecting all movies produced between 1900 and 2015
 movie.genre <- db %>%
   dbGetQuery("SELECT m.movie_id, t.title, t.production_year, m.info
@@ -59,7 +60,6 @@ movie.genre <- db %>%
 save(movie.genre, file = "movie.genre.rda")
 ```
 
-
 ```{r}
 ##Loading movie.genre file
 load(file = "movie.genre.rda")
@@ -67,12 +67,12 @@ load(file = "movie.genre.rda")
 
 Lede:
 
-Audience is constantly seeking fantasy in movies. From the recent movies on foreign planet like *Avatar*, to the earlier oriental topics like *Mulan*, to the ancient Egyptian topics like *Cleopatra* in the 60s, exotic element has always been the core in Hollywood movies. Western, being the very first exotic yet American genre that led to the birth of Hollywood  (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64. ), seems to get fewer attention in recent years. Is it really?
+Audience is constantly seeking exoticism in movies. From the ancient Egyptian mistery of *Cleopatra*, the legend of oriental disney princess *Mulan*, and worlds of extraterrestrial life like *Avatar*, exotic elements have always been celebrated by Hollywood and the Academy Awards. Yet, the Western genre, being the very first American and exotic kind that led to the birth of Hollywood  (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64. ) seems to have faded from sight over time. 
 
 
 Nutgraph:
 
-While western movie production took a dramatic downfall after its peak in 1912, and has gradually decreased for the past century, the genre seemed to have come back into fashion around 2014. It is not surprising that the first peak of western movie is at 1912, as it was accompanied with the rise of film industry in hollywood (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64. ) Then as the release of new western movies starring famous Hollywood actors, such as *The Lone Ranger* starring Johnny Depp and *A Million Ways to Die in the West* starring Charlize Theron and Amanda Seyfried (IMDB.com), the western genre has come to its second spring in 2014. How has the western film changed to gain its revival? In this article, we explore some possible explanation based on our data analysis adopted from IMDB.com.
+Since its golden peak with the rise of Hollywood film industry in 1912(Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64), western movie production has taken a dramatic downfall and gradually decreased for the past century. However, the genre seemed to have come back into fashion around 2014, with the release of new western movies like * The Lone Ranger* and *A Million Ways to Die in the West*, starring famous actors such as Johnny Depp. Yet, given the average ratings of these movies (e.g. 6.5/10 for *The Lone Ranger*; 6.1/10 for *A Million Ways to Die in the West*), can we really expect a western genre revival with increasing productions? What has or has not made this revival likely or possible? In this article, we explored some possible explanation based on our data analysis adopted from IMDB.com. 
 
 
 ```{r}
@@ -134,7 +134,6 @@ ggplot(western_only1, aes(x = production_year)) +
                        labels = c("Pure Western", "Western Total"))
 ```
 
-
 Interestingly, as shown in the graph below, compared with western movies in 1912, western movies in 2014 were more diversely defined in genres. For example, while most western movies still fall under the category "Short", we see emergence of new genres such as fantasy, horror and musical. This could explain why western movies periodically came back in fashion and increased in production amount, as directors could find ways to incorporate western movie materials into other genres or vice versa. However, this could also explain why western movies are not as popular as they were before. Emergence of new genres could suggest a deviation from mainstream western genres, perhaps production has decreased because audience prefer movies of other genres.
 
 ```{r}
@@ -176,11 +175,8 @@ p3 <- ggplot(movie.graph.2014, aes(x=info)) +
 grid.arrange(p2, p3)
 ```
 
-
-
 ```{r}
 # Extra information on the genre population in 2014
-
 movie.genre.2014 <- movie.genre %>%
   filter(production_year == 2014) %>%
   group_by(Genre = info) %>%
@@ -204,7 +200,7 @@ save(media.type, file = "media.type.rda")
 ```
 
 
-Secondly, we are also interested in looking at other types of media productions in the western genre. While movie is always the major type of media production fond of the western genre, some other types of media production, such as TV movies and video movies, are coming into fashion. 
+Secondly, we are also interested in looking at other types of media productions in the western genre. While movie is always the major type of media production fond of the western genre, some other types of media production, such as TV movies and video movies, are coming into fashion. This trend suggests that perhaps "western" as a genre is only fading from the film industry, we might expect to see its revival elsewhere in the near future. 
 
 
 ```{r, warning=FALSE, eval = FALSE}
@@ -272,9 +268,47 @@ grid.arrange(pp_tv, pp_tv_movie, pp_video)
 
 ```
 
+```{r}
+##Selecting all directors who directed western movies between 1900 and 2015
+db <- dbConnect_scidb(dbname = "imdb")
+director.genre <- db %>%
+  dbGetQuery("SELECT m.movie_id, t.title, t.production_year, m.info, ci.person_id
+              FROM role_type r
+              JOIN cast_info ci ON ci.role_id = r.id
+              JOIN title t ON ci.movie_id = t.id
+              JOIN movie_info m ON t.id = m.movie_id
+              WHERE m.info_type_id = 3
+              AND r.id = 8
+              AND t.kind_id = 1
+              AND t.production_year >= 1900
+              AND t.production_year <= 2015
+              ORDER BY production_year, title;"
+             )
 
- To summarize, based on our analysis, the western genre will not die off because: 1). it is so central to the American culture. 2). The western films has kept evolving overtime, by combining other genres to cater to the contemporary audidence's taste.
+##Saving movie.genre as rda file
+save(director.genre, file = "director.genre.rda")
+```
 
+```{r}
+load(file = "director.genre.rda")
+```
 
+```{r}
+#Dataset looks at directors' history of directing Western movies
+director <- left_join(western.movie, director.genre, by = "person_id") %>%
+  select(person_id, movie_id.y, title.y, info, production_year.y) %>%
+  group_by(person_id,production_year.y,info) %>%
+  summarise(amount = n_distinct(title.y)) %>%
+  filter(info == "Western")
+```
+
+```{r, warning=FALSE, message=FALSE}
+ggplot(director,aes(x=production_year.y, y=amount, col=person_id)) + 
+  geom_line() +
+  labs(x = "Year", y = "Number of Western Movies") +
+  theme(legend.position = "none") 
+```
+
+Finally, we looked at how directing history of those who had directed western movies changed over time. It appears that the fact that western genre is dying in the film industry could be attributed to the fact that less directors are directing western movies, and that directors are directing less movies of such genre.   
 
 Github link: https://github.com/ShuliHuhahaha/192MP3

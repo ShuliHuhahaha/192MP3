@@ -303,7 +303,7 @@ director <- left_join(western.movie, director.genre, by = "person_id") %>%
 ```
 
 ```{r, warning=FALSE, message=FALSE}
-ggplot(director,aes(x=production_year.y, y=amount, col=person_id)) + 
+ggplot(director,aes(x=production_year.y, y=amount)) + 
   geom_line() +
   labs(x = "Year", y = "Number of Western Movies") +
   theme(legend.position = "none") 

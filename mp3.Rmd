@@ -72,7 +72,7 @@ Audience is constantly seeking exoticism in movies. From the ancient Egyptian mi
 
 Nutgraph:
 
-Since its golden peak with the rise of Hollywood film industry in 1912(Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64), western movie production has taken a dramatic downfall and gradually decreased for the past century. However, the genre seemed to have come back into fashion around 2014, with the release of new western movies like * The Lone Ranger* and *A Million Ways to Die in the West*, starring famous actors such as Johnny Depp. Yet, given the average ratings of these movies (e.g. 6.5/10 for *The Lone Ranger*; 6.1/10 for *A Million Ways to Die in the West*. from imdb.com), can we really expect a western genre revival with increasing productions? What has or has not made this revival likely or possible? In this article, we explored some possible explanation based on our data analysis adopted from IMDB.com. 
+Since its golden peak with the rise of Hollywood film industry in 1912 (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64), western movie production has taken a dramatic downfall and gradually decreased for the past century. However, the genre seemed to have come back into fashion around 2014, with the release of new western movies like * The Lone Ranger* and *A Million Ways to Die in the West*, starring famous actors such as Johnny Depp and Charlize Theron respectively. Yet, given the average IMDB ratings of these movies (e.g. 6.5/10 for *The Lone Ranger*; 6.1/10 for *A Million Ways to Die in the West*), we may not expect a western genre revival with the increasing productions. What has or has not made this revival likely or possible? In this article, we explored some possible explanation based on our data analysis adopted from IMDB.com.  
 
 
 ```{r}
@@ -186,7 +186,7 @@ movie.genre.2014 <- movie.genre %>%
 print(movie.genre.2014)
 ```
 
-```{r, warning=FALSE, eval = FALSE}
+```{r, warning=FALSE}
 media.type <- db %>%
   dbGetQuery("SELECT t.production_year, t.kind_id, m.movie_id 
               FROM title t
@@ -203,7 +203,7 @@ save(media.type, file = "media.type.rda")
 Secondly, we are also interested in looking at other types of media productions in the western genre. While movie is always the major type of media production fond of the western genre, some other types of media production, such as TV movies and video movies, are coming into fashion. This trend suggests that perhaps "western" as a genre is only fading from the film industry, we might expect to see its revival elsewhere in the near future. 
 
 
-```{r, warning=FALSE, eval = FALSE}
+```{r, warning=FALSE}
 # Looking at all types of media production in Western Genre
 
 media.type = na.omit(media.type)
@@ -253,16 +253,19 @@ media.type.whole <- media.type1 %>%
   full_join(media.type4, by="production_year") 
 
 pp_tv <- ggplot(media.type.whole, aes(x = production_year)) +
-  geom_line(aes(y=num2, color = "tv series")) +
-  scale_color_discrete(name = "media type")
+  geom_line(aes(y=num2, color = "TV series")) +
+  scale_color_discrete(name = "media type") +
+  labs(x = "Production Year", y = "quantity")
 
 pp_tv_movie <- ggplot(media.type.whole, aes(x = production_year)) +
-  geom_line(aes(y=num3, color = "tv movies")) +
-  scale_color_discrete(name = "media type")
+  geom_line(aes(y=num3, color = "TV movies")) +
+  scale_color_discrete(name = "media type") +
+  labs(x = "Production Year", y = "quantity")
 
 pp_video <- ggplot(media.type.whole, aes(x = production_year)) +
   geom_line(aes(y=num4, color = "video movies"))  +
-  scale_color_discrete(name = "media type")
+  scale_color_discrete(name = "media type") +
+  labs(x = "Production Year", y = "quantity")
 
 grid.arrange(pp_tv, pp_tv_movie, pp_video)
 

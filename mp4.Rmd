@@ -312,7 +312,7 @@ director <- left_join(western.movie, director.genre, by = "person_id") %>%
 
 Finally, we looked at how directing history of those who had directed western movies changed over time. It appears that the fact that western genre is dying in the film industry could be attributed to the fact that less directors are directing western movies, and that directors are directing less movies of such genre. 
 
-On the contrary, critics have used the same statistic to back up the counter-argument that western is declining because there are fewer directors making films in this genre. But as long as a western movie is on the screen, people would watch it. Even though we do not have the proper statistics to validate the second part of the argument, the mediocre grossing of the recent western movies, such as [*The Lone Ranger*](https://www.mprnews.org/story/2014/06/16/daily-circuit-western-movies), refutes the argument in some ways. The meh performance of western movies may further discourage the big studios to produce films in this genre.
+On the contrary, [critics](https://www.mprnews.org/story/2014/06/16/daily-circuit-western-movies) have used the same statistic to back up the counter-argument that western is declining because there are fewer directors making films in this genre. But as long as a western movie is on the screen, people would watch it. Even though we do not have the proper statistics to validate the second part of the argument, the mediocre grossing of the recent western movies, such as [*The Lone Ranger*](https://www.mprnews.org/story/2014/06/16/daily-circuit-western-movies), refutes the argument in some ways. The meh performance of western movies may further discourage the big studios to produce films in this genre.
 
 
 

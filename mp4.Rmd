@@ -1,7 +1,10 @@
 ---
-title: "Mini Project 4: Have Western Movies Died?"
-author: "Shuli Hu, Karina Huang, Iris Dong"
-output: html_document
+title: "Have Western Movies Died?"
+author: "By Shuli Hu, Karina Huang, Iris Dong"
+output: 
+  html_document:
+    theme: journal
+    code_folding: hide
 ---
 
 

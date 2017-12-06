@@ -16,7 +16,7 @@ library(gridExtra)
 library(ggthemes)
 ```
 
-```{r}
+```{r, eval=FALSE}
 ##Selecting all western movies produced between 1900 and 2015
 db <- dbConnect_scidb(dbname = "imdb")
 western.movie <- db %>%
@@ -43,7 +43,7 @@ save(western.movie, file = "western.movie.rda")
 load(file = "western.movie.rda")
 ```
 
-```{r}
+```{r, eval=FALSE}
 ##Selecting all movies produced between 1900 and 2015
 movie.genre <- db %>%
   dbGetQuery("SELECT m.movie_id, t.title, t.production_year, m.info
@@ -187,7 +187,7 @@ movie.genre.2014 <- movie.genre %>%
 print(movie.genre.2014)
 ```
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, eval=FALSE}
 media.type <- db %>%
   dbGetQuery("SELECT t.production_year, t.kind_id, m.movie_id 
               FROM title t
@@ -200,6 +200,10 @@ media.type <- db %>%
 save(media.type, file = "media.type.rda")
 ```
 
+```{r}
+##Loading western.movie.rda
+load(file = "media.type.rda")
+```
 
 Secondly, we are also interested in looking at other types of media productions in the western genre. While movie is always the major type of media production fond of the western genre, some other types of media production, such as TV movies and video movies, are coming into fashion. This trend suggests that perhaps "western" as a genre is only fading from the film industry, we might expect to see its revival elsewhere in the near future. 
 
@@ -272,7 +276,7 @@ grid.arrange(pp_tv, pp_tv_movie, pp_video)
 
 ```
 
-```{r}
+```{r, eval=FALSE}
 ##Selecting all directors who directed western movies between 1900 and 2015
 db <- dbConnect_scidb(dbname = "imdb")
 director.genre <- db %>%

@@ -90,7 +90,8 @@ head(western.movie1)
 
 ```{r}
 ##Joining datasets so movie.graph includes genre information other than "Western"
-movie.graph <- left_join(western.movie, movie.genre, by = "movie_id")
+movie.graph <- left_join(western.movie, movie.genre, by = "movie_id") %>%
+  filter(info != "Short")
 
 western_total <- movie.graph %>%
    summarize(total =n_distinct(movie_id))
@@ -110,7 +111,7 @@ western_only <- movie.graph %>%
   group_by(movie_id) %>%
   summarize(total = n()) %>%
   arrange(total) %>%
-  head(3742) ##Number of western movies only defined as "Western" : 13693-9951=3742
+  head(6008) ##Number of western movies only defined as "Western"
 
 western_only1 <- western_only %>%
   left_join(movie.graph) %>%
@@ -124,8 +125,8 @@ western_only1 <- western_only %>%
 ggplot(western_only1, aes(x = production_year)) +
   geom_line(aes(y = western, col = "western")) +
   geom_line(aes(y = pure_western, col = "pure_western")) +
-  geom_point(aes(x = 1912, y = 590), shape = 21, size=2, col = "red",fill = "red") +
-  annotate("text", x = 1912, y = 610, label = "1912", size = 4, color = "red") +
+  geom_point(aes(x = 1912, y = 390), shape = 21, size=2, col = "red",fill = "red") +
+  annotate("text", x = 1912, y = 400, label = "1912", size = 4, color = "red") +
   geom_point(aes(x = 2014, y = 354), shape = 21, size = 2, col = "red",fill = "red") +
   annotate("text", x = 2014, y = 375, label = "2014", size = 4, color = "red") +
   labs(title = "Western Movie Productions 1900-2015", x = "Production Year", y = "Number of Western Movies") +

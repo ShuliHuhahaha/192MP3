@@ -212,6 +212,7 @@ Secondly, we are also interested in looking at other types of media productions 
 
 
 ```{r, warning=FALSE}
+
 # Looking at all types of media production in Western Genre
 
 media.type = na.omit(media.type)
@@ -253,7 +254,12 @@ media.type4 <- media.type %>%
   group_by(production_year) %>%
   summarise(num4 = count(kind_id))
 
+```
+
+
+```{r, warning=FALSE}
 #media type: tv series, tv movies, video movies. Besides movies, only these three types of media production have significant data.
+#visualize media type pf tv series, tv movies, viedeo movies.
 
 media.type.whole <- media.type1 %>%
   full_join(media.type2, by="production_year") %>%
@@ -263,21 +269,29 @@ media.type.whole <- media.type1 %>%
 pp_tv <- ggplot(media.type.whole, aes(x = production_year)) +
   geom_line(aes(y=num2, color = "TV series")) +
   scale_color_discrete(name = "media type") +
-  labs(x = "Production Year", y = "quantity")
+  labs(title = "TV series", x = "", y = "quantity") +
+  theme(plot.title=element_text(size=rel(1)),
+        legend.position="none")
 
 pp_tv_movie <- ggplot(media.type.whole, aes(x = production_year)) +
   geom_line(aes(y=num3, color = "TV movies")) +
   scale_color_discrete(name = "media type") +
-  labs(x = "Production Year", y = "quantity")
+  labs(title = "TV movies",x = "", y = "quantity") +
+  theme(plot.title=element_text(size=rel(1)),
+        legend.position="none")
 
 pp_video <- ggplot(media.type.whole, aes(x = production_year)) +
   geom_line(aes(y=num4, color = "video movies"))  +
   scale_color_discrete(name = "media type") +
-  labs(x = "Production Year", y = "quantity")
+  labs(title = "video movies", x = "Production Year", y = "quantity") +
+  theme(plot.title=element_text(size=rel(1)),
+        legend.position="none")
 
 grid.arrange(pp_tv, pp_tv_movie, pp_video)
 
 ```
+
+
 
 ```{r, eval=FALSE}
 ##Selecting all directors who directed western movies between 1900 and 2015

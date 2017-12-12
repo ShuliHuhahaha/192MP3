@@ -1,11 +1,17 @@
 ---
-title: "Have Western Movies Died?"
-author: "By Shuli Hu, Karina Huang, Iris Dong"
 output: 
   html_document:
     theme: journal
     code_folding: hide
 ---
+
+Dec. 11, 2017 AT 12:31 PM
+
+# **Have Western Movies Died?**
+
+By Shuli Hu, Karina Huang, Iris Dong
+
+
 
 ```{r, message = FALSE, warning = FALSE, echo = FALSE}
 library(mdsr)
@@ -15,7 +21,15 @@ library(ggplot2)
 library(grid)
 library(gridExtra)
 library(ggthemes)
+library(knitr)
 ```
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.align="center", fig.width = 6, fig.height = 4)
+```
+
+![](http://www.imglobalfilm.com/uploads/a790c3fd693a2c7ce4115472b1484504bcd99169.jpg)
+
 
 ```{r, eval=FALSE}
 ##Selecting all western movies produced between 1900 and 2015
@@ -112,8 +126,19 @@ western.movie.long2 <- western.movie.long %>%
   summarise(western = n_distinct(movie_id)) %>%
   arrange(desc(western))
 
-head(western.movie.long2)
+library(DT)
+datatable(western.movie.long2, 
+          width = 600,
+          colnames = c('Production Year', '# Western Movie'),
+          options = list(columnDefs = list(list(
+            className = 'dt-center', targets = 0
+          ))),
+          caption = htmltools::tags$caption(
+    style = 'text-align: center; font-size:150% ;',
+    'Ranking of Western Long Movie Production by Year')
+          )
 ```
+
 
 ```{r}
 ##Joining datasets so movie.graph includes genre information other than "Western"
@@ -149,20 +174,25 @@ western.sum <- full_join(western.sum, western.short)
 ```
 
 
-```{r}  
+```{r, warning = FALSE}  
 ggplot(western.sum, aes(x = production_year)) +
   geom_line(aes(y = western, col = "total_western")) +
   geom_line(aes(y = pure_western, col = "pure_western")) +
   geom_line(aes(y = movies.short, col = "short_western")) +
   geom_point(aes(x = 1912, y = 390), shape = 21, size=2, col = "red",fill = "red") +
-  annotate("text", x = 1912, y = 400, label = "1912", size = 4, color = "red") +
+  annotate("text", x = 1912, y = 410, label = "1912", size = 4, color = "red") +
   geom_point(aes(x = 2014, y = 354), shape = 21, size = 2, col = "red",fill = "red") +
   annotate("text", x = 2014, y = 375, label = "2014", size = 4, color = "red") +
   labs(title = "Western Movie Productions 1900-2015", x = "Production Year", y = "Number of Western Movies") +
-  theme(panel.grid = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(color = "black"),
-        plot.title = element_text(size = 15, face = "bold", hjust = 0.5)) 
+  theme_economist() +
+  theme(axis.line = element_line(color = "black"),
+        axis.title = element_text(size = 10, face = "bold"),
+        axis.title.x = element_text(margin = margin(t=20,r=0,b=0,l=0)),
+        axis.title.y = element_text(margin = margin(t=0,r=20,b=0,l=0)),
+        plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+        legend.text = element_text(size = 10)) +
+    scale_color_discrete(name = "",
+                         labels = c("Pure Western", "Short Western", "Total Western excluding Short")) 
 ```
 
 First, we looked at how the genre has evolved over the past 100 years and during these two specific peaks. It turns out that the recent Western movies have included more genres than the ones produced 100 years ago. Over the course of 1900 - 2015, there are 13693 western movies in total (As blue line in the graph above), and 9951 (73%) of them were tagged with at least one another genre. Pure western (As red line in the graph above) movies were those categorized only as western genre rather than being in multiple genres. This graph shows that during the prosperous period, western movies are more often made into other genres, instead of remaining only as western movies. 
@@ -192,54 +222,81 @@ movie.graph.1925 <- movie.graph %>%
   select(-production_year)
 ```
 
-```{r, warning=FALSE, message=FALSE, fig.width=13, fig.height=10}
+```{r, warning=FALSE, message=FALSE, fig.width=8, fig.height=6}
 
 ##Comparing western movie genres in 1912 and 2014 by graphs
 p2 <- ggplot(movie.graph.1912, aes(x = info)) + 
   geom_bar() +
   labs(title = "Short Western Movie Genre Distribution 1912", x = "Movie Genre", y = "Number of Movies") +
   theme_economist() +
-  theme(axis.text = element_text(size = 20),
-        axis.title = element_text(size = 20, face = "bold"),
+  theme(axis.text = element_text(size = 8),
+        axis.title = element_text(size = 10, face = "bold"),
         axis.title.x = element_text(margin = margin(t=20,r=0,b=0,l=0)),
         axis.title.y = element_text(margin = margin(t=0,r=20,b=0,l=0)),
-        plot.title = element_text(size = 25, face = "bold", hjust = 0.5))
+        plot.title = element_text(size = 15, face = "bold", hjust = 0.5, margin = margin(t=0,r=0,b=20,l=0)))
 
 p3 <- ggplot(movie.graph.2014.short, aes(x=info)) + 
   geom_bar() +
   labs(title = "Short Western Movie Genre Distribution 2014", x="Movie Genre", y="Number of Movies") +
   theme_economist() +
-  theme(axis.text = element_text(size = 8),
-        axis.title = element_text(size = 20, face = "bold"),
+  theme(axis.text = element_text(size = 5),
+        axis.title = element_text(size = 10, face = "bold"),
         axis.title.x = element_text(margin = margin(t=20,r=0,b=0,l=0)),
         axis.title.y = element_text(margin = margin(t=0,r=20,b=0,l=0)),
-        plot.title = element_text(size = 25, face = "bold", hjust = 0.5),
-        plot.margin = unit(c(3,1,1,1),"cm"))
+        plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+        plot.margin = unit(c(1,0.5,0.5,0.5),"cm"))
+grid.arrange(p2, p3)
+```
 
+
+```{r, warning=FALSE, message=FALSE, fig.width=8, fig.height=6}
 p4 <- ggplot(movie.graph.1925, aes(x=info)) + 
   geom_bar() +
   labs(title = "Long Western Movie Genre Distribution 1925", x="Movie Genre", y="Number of Movies") +
   theme_economist() +
   theme(axis.text = element_text(size = 8),
-        axis.title = element_text(size = 20, face = "bold"),
+        axis.title = element_text(size = 10, face = "bold"),
         axis.title.x = element_text(margin = margin(t=20,r=0,b=0,l=0)),
         axis.title.y = element_text(margin = margin(t=0,r=20,b=0,l=0)),
-        plot.title = element_text(size = 25, face = "bold", hjust = 0.5),
-        plot.margin = unit(c(3,1,1,1),"cm"))
+        plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
+        plot.margin = unit(c(1,1,1,1),"cm"))
 
 p5 <- ggplot(movie.graph.2014, aes(x=info)) + 
   geom_bar() +
   labs(title = "Long Western Movie Genre Distribution 2014", x="Movie Genre", y="Number of Movies") +
   theme_economist() +
-  theme(axis.text = element_text(size = 8),
-        axis.title = element_text(size = 20, face = "bold"),
+  theme(axis.text = element_text(size = 5),
+        axis.title = element_text(size = 10, face = "bold"),
         axis.title.x = element_text(margin = margin(t=20,r=0,b=0,l=0)),
         axis.title.y = element_text(margin = margin(t=0,r=20,b=0,l=0)),
-        plot.title = element_text(size = 25, face = "bold", hjust = 0.5),
-        plot.margin = unit(c(3,1,1,1),"cm"))
+        plot.title = element_text(size = 15, face = "bold", hjust = 0.5, margin = margin(t=0,r=,b=20,l=0)),
+        plot.margin = unit(c(1,1,1,1),"cm"))
 
-grid.arrange(p2, p3, p4, p5)
+grid.arrange(p4, p5)
 ```
+
+```{r}
+# Extra information on the genre population in 2014
+movie.genre.2014 <- movie.genre %>%
+  filter(info != "Short") %>%
+  filter(production_year == 2014) %>%
+  group_by(Genre = info) %>%
+  summarise(number_movie = n_distinct(movie_id)) %>%
+  arrange(desc(number_movie))
+
+datatable(movie.genre.2014,
+          colnames = c('Genre', '# Movie'),
+          width = 600,
+           options = list(columnDefs = list(list(
+            className = 'dt-center', targets = 0
+          ))),
+          caption = htmltools::tags$caption(
+    style = 'text-align: center; font-size:150% ;',
+    'Movie Genre Production in 2014')
+          )
+```
+
+
 
 ```{r, warning=FALSE, eval=FALSE}
 media.type <- db %>%
@@ -308,7 +365,7 @@ media.type4 <- media.type %>%
 ```
 
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message=FALSE, fig.width=6, fig.height=5}
 #media type: tv series, tv movies, video movies. Besides movies, only these three types of media production have significant data.
 #visualize media type pf tv series, tv movies, viedeo movies.
 
@@ -321,6 +378,7 @@ pp_tv <- ggplot(media.type.whole, aes(x = production_year)) +
   geom_line(aes(y=num2, color = "TV series")) +
   scale_color_discrete(name = "media type") +
   labs(title = "TV series", x = "", y = "quantity") +
+  theme_economist() +
   theme(plot.title=element_text(size=rel(1)),
         legend.position="none")
 
@@ -328,6 +386,7 @@ pp_tv_movie <- ggplot(media.type.whole, aes(x = production_year)) +
   geom_line(aes(y=num3, color = "TV movies")) +
   scale_color_discrete(name = "media type") +
   labs(title = "TV movies",x = "", y = "quantity") +
+  theme_economist() +
   theme(plot.title=element_text(size=rel(1)),
         legend.position="none")
 
@@ -335,6 +394,7 @@ pp_video <- ggplot(media.type.whole, aes(x = production_year)) +
   geom_line(aes(y=num4, color = "video movies"))  +
   scale_color_discrete(name = "media type") +
   labs(title = "video movies", x = "Production Year", y = "quantity") +
+  theme_economist() +
   theme(plot.title=element_text(size=rel(1)),
         legend.position="none")
 
@@ -397,7 +457,8 @@ On the contrary, [critics](https://www.mprnews.org/story/2014/06/16/daily-circui
 ```{r, warning=FALSE, message=FALSE}
 ggplot(director.sum, aes(x=production_year)) + 
   geom_line(aes(y=director.short), col = "blue") +
-  geom_line(aes(y=director.long), col = "red")
+  geom_line(aes(y=director.long), col = "red")+
+  theme_economist()
 ```
 
 

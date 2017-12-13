@@ -220,7 +220,7 @@ movie.graph.2014 <- movie.graph %>%
 
 ##Filtering short western movies produced in 2014
 movie.graph.2014.short <- short.sum %>%
-  filter(production_year == 2014 & info != "Western") %>%
+  filter(production_year == 2014 & info != "Western" & info != "Short") %>%
   select(-production_year)
 
 ##Filtering long western movies produced in 1925

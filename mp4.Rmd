@@ -4,6 +4,17 @@ output:
     theme: journal
     code_folding: hide
 ---
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 17px;
+      color: black;
+  }
+table{
+
+}
+
+</style>
 
 Dec. 11, 2017 AT 12:31 PM
 

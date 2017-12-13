@@ -34,7 +34,7 @@ library(DT)
 ```
 
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.align="center", fig.width = 6, fig.height = 4)
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,fig.width = 10, fig.height = 5)
 ```
 
 ![](http://www.imglobalfilm.com/uploads/a790c3fd693a2c7ce4115472b1484504bcd99169.jpg)
@@ -60,14 +60,7 @@ western.movie <- db %>%
 
 ##Saving western.movie as rda file
 save(western.movie, file = "western.movie.rda")
-```
 
-```{r}
-##Loading western.movie.rda
-load(file = "western.movie.rda")
-```
-
-```{r, eval=FALSE}
 ##Selecting all movies produced between 1900 and 2015
 movie.genre <- db %>%
   dbGetQuery("SELECT m.movie_id, t.title, t.production_year, m.info
@@ -85,6 +78,9 @@ save(movie.genre, file = "movie.genre.rda")
 ```
 
 ```{r}
+##Loading western.movie.rda
+load(file = "western.movie.rda")
+
 ##Loading movie.genre file
 load(file = "movie.genre.rda")
 ```
@@ -96,7 +92,7 @@ Audience is constantly seeking exoticism in movies. From the ancient Egyptian mi
 
 Nutgraph:
 
-Since its golden peak with the rise of Hollywood film industry in 1912 (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64), western movie production has taken a dramatic downfall and gradually decreased for the past century. However, the genre seemed to have come back into fashion around 2014, with the release of new western movies like * The Lone Ranger* and *A Million Ways to Die in the West*, starring famous actors such as Johnny Depp and Charlize Theron respectively. Yet, given the average IMDB ratings of these movies (e.g. 6.5/10 for *The Lone Ranger*; 6.1/10 for *A Million Ways to Die in the West*), we may not expect a western genre revival with the increasing productions. What has or has not made this revival likely or possible? In this article, we explored some possible explanation based on our data analysis adopted from IMDB.com.  
+Since its golden peak with the rise of Hollywood film industry in 1912 (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64), western movie production has taken a dramatic downfall and gradually decreased for the past century. However, the genre seemed to have come back into fashion around 2014, with the release of new western movies like * The Lone Ranger* and *A Million Ways to Die in the West*, starring famous actors such as Johnny Depp and Charlize Theron respectively. Yet, given the average IMDB ratings of these movies (e.g. 6.5/10 for *The Lone Ranger*; 6.1/10 for *A Million Ways to Die in the West*), we may not expect a western genre revival with the increasing productions. What has or has not made this revival likely or possible? In this article, we explored some possible explanation based on our data analysis adopted from IMDB.com.[^1]  
 
 ```{r, message=FALSE, warning=FALSE}
 #Filtering for short films of western genre
@@ -158,9 +154,7 @@ western_total <- movie.graph %>%
 western_total_mulgenre <- movie.graph %>%
    filter(info != "Western") %>%
    summarize(total = n_distinct(movie_id))
-```
 
-```{r,message=FALSE,warning=FALSE}
 western_only <- movie.graph %>%
   group_by(movie_id) %>%
   summarize(total = n()) %>%
@@ -176,10 +170,7 @@ pure.western <- movie.graph %>%
 
 western.sum <- full_join(western.movie.long2,pure.western)
 western.sum <- full_join(western.sum, western.short)
-```
 
-
-```{r, warning = FALSE}  
 ggplot(western.sum, aes(x = production_year)) +
   geom_line(aes(y = western, col = "total_western")) +
   geom_line(aes(y = pure_western, col = "pure_western")) +
@@ -229,7 +220,7 @@ movie.graph.1925 <- movie.graph %>%
   select(-production_year)
 ```
 
-```{r, warning=FALSE, message=FALSE, fig.width=8, fig.height=6}
+```{r, warning=FALSE, message=FALSE, fig.width=10, fig.height=5}
 
 ##Comparing western movie genres in 1912 and 2014 by graphs
 p2 <- ggplot(movie.graph.1912, aes(x = info)) + 
@@ -240,7 +231,8 @@ p2 <- ggplot(movie.graph.1912, aes(x = info)) +
         axis.title = element_text(size = 10, face = "bold"),
         axis.title.x = element_text(margin = margin(t=20,r=0,b=0,l=0)),
         axis.title.y = element_text(margin = margin(t=0,r=20,b=0,l=0)),
-        plot.title = element_text(size = 15, face = "bold", hjust = 0.5, margin = margin(t=0,r=0,b=20,l=0)))
+        plot.title = element_text(size = 15, face = "bold", hjust = 0.5, margin = margin(t=0,r=0,b=20,l=0)),
+        plot.margin = unit(c(1,0.5,0,0.5),"cm"))
 
 p3 <- ggplot(movie.graph.2014.short, aes(x=info)) + 
   geom_bar() +
@@ -255,8 +247,7 @@ p3 <- ggplot(movie.graph.2014.short, aes(x=info)) +
 grid.arrange(p2, p3)
 ```
 
-
-```{r, warning=FALSE, message=FALSE, fig.width=8, fig.height=6}
+```{r, warning=FALSE, message=FALSE, fig.width=10, fig.height=5}
 p4 <- ggplot(movie.graph.1925, aes(x=info)) + 
   geom_bar() +
   labs(title = "Long Western Movie Genre Distribution 1925", x="Movie Genre", y="Number of Movies") +
@@ -265,8 +256,8 @@ p4 <- ggplot(movie.graph.1925, aes(x=info)) +
         axis.title = element_text(size = 10, face = "bold"),
         axis.title.x = element_text(margin = margin(t=20,r=0,b=0,l=0)),
         axis.title.y = element_text(margin = margin(t=0,r=20,b=0,l=0)),
-        plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
-        plot.margin = unit(c(1,1,1,1),"cm"))
+        plot.title = element_text(size = 15, face = "bold", hjust = 0.5, margin = margin(t=20,r=0,b=10,l=0)),
+        plot.margin = unit(c(0,1,1,1),"cm"))
 
 p5 <- ggplot(movie.graph.2014, aes(x=info)) + 
   geom_bar() +
@@ -277,7 +268,7 @@ p5 <- ggplot(movie.graph.2014, aes(x=info)) +
         axis.title.x = element_text(margin = margin(t=20,r=0,b=0,l=0)),
         axis.title.y = element_text(margin = margin(t=0,r=20,b=0,l=0)),
         plot.title = element_text(size = 15, face = "bold", hjust = 0.5, margin = margin(t=0,r=,b=20,l=0)),
-        plot.margin = unit(c(1,1,1,1),"cm"))
+        plot.margin = unit(c(0,1,1,1),"cm"))
 
 grid.arrange(p4, p5)
 ```
@@ -293,7 +284,6 @@ movie.genre.1925.2014 <- movie.genre %>%
 
 datatable(movie.genre.1925.2014,
           colnames = c('Genre', '1925', '2014'),
-          width = 600,
           rownames = FALSE,
            options = list(columnDefs = list(list(
             className = 'dt-center', targets = 0
@@ -371,7 +361,7 @@ media.type4 <- media.type %>%
 ```
 
 
-```{r, warning=FALSE, message=FALSE, fig.width=6, fig.height=5}
+```{r, warning=FALSE, message=FALSE}
 #media type: tv series, tv movies, video movies. Besides movies, only these three types of media production have significant data.
 #visualize media type pf tv series, tv movies, viedeo movies.
 
@@ -386,6 +376,7 @@ pp_tv <- ggplot(media.type.whole, aes(x = production_year)) +
   labs(title = "TV series", x = "", y = "quantity") +
   theme_economist() +
   theme(plot.title=element_text(size=rel(1)),
+        plot.margin = unit(c(0.5,0,0,0),"cm"),
         legend.position="none")
 
 pp_tv_movie <- ggplot(media.type.whole, aes(x = production_year)) +
@@ -394,6 +385,7 @@ pp_tv_movie <- ggplot(media.type.whole, aes(x = production_year)) +
   labs(title = "TV movies",x = "", y = "quantity") +
   theme_economist() +
   theme(plot.title=element_text(size=rel(1)),
+        plot.margin = unit(c(0.5,0,0,0),"cm"),
         legend.position="none")
 
 pp_video <- ggplot(media.type.whole, aes(x = production_year)) +
@@ -402,6 +394,7 @@ pp_video <- ggplot(media.type.whole, aes(x = production_year)) +
   labs(title = "video movies", x = "Production Year", y = "quantity") +
   theme_economist() +
   theme(plot.title=element_text(size=rel(1)),
+        plot.margin = unit(c(0.5,0,0.5,0),"cm"),
         legend.position="none")
 
 grid.arrange(pp_tv, pp_tv_movie, pp_video, 
@@ -416,4 +409,4 @@ On the contrary, [critics](https://www.mprnews.org/story/2014/06/16/daily-circui
 
 Wrapping up, even though the western genre has a slight revival in movie production recently, our data analysis does not give an optimistic prediction for the future of this genre. The popularity of western is still declining. As a genre so core to American values, western may not compeletly disappear in the films, but it may not be able to return to the main stage of movie production for a while.
 
-Github link: https://github.com/ShuliHuhahaha/192MP3
+[^1]: Github link: https://github.com/ShuliHuhahaha/192MP3

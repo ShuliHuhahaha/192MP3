@@ -10,9 +10,6 @@ body{ /* Normal  */
       font-size: 17px;
       color: black;
   }
-table{
-
-}
 
 </style>
 

@@ -286,6 +286,7 @@ movie.genre.1925.2014 <- movie.genre %>%
 datatable(movie.genre.1925.2014,
           colnames = c('Genre', '1925', '2014'),
           width = 600,
+          rownames = FALSE,
            options = list(columnDefs = list(list(
             className = 'dt-center', targets = 0
           ))),
@@ -395,7 +396,11 @@ pp_video <- ggplot(media.type.whole, aes(x = production_year)) +
   theme(plot.title=element_text(size=rel(1)),
         legend.position="none")
 
-grid.arrange(pp_tv, pp_tv_movie, pp_video)
+grid.arrange(pp_tv, pp_tv_movie, pp_video, 
+             top=textGrob("Other Western Media Production 1910 - 2015", 
+                          gp=gpar(fontsize=15, 
+                                  fontface = "bold"))
+             )
 
 ```
 

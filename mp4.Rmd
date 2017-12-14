@@ -85,14 +85,10 @@ load(file = "western.movie.rda")
 load(file = "movie.genre.rda")
 ```
 
-Lede:
+The Western movie plays an important role in film history. *Zorro* is probably the most well-known Western character worldwide: Its cultural icons, nomadic gunfighter, bandits, soldiers and settlers had an important impact on the movie culture. Yet the most recent *Zorro* film (2005) was produced more than a decade ago. The hibernation of the Zorro series in some way reflects the current stagnant status of the Western genre. The Western genre, being the very genre that had [played a big role in the birth of Hollywood](http://www.nytimes.com/2007/11/10/magazine/11schatz.html) [^1]  seems to have faded from sight over time. 
 
-Audience is constantly seeking exoticism in movies. From the ancient Egyptian mistery of *Cleopatra*, to the legend of oriental disney princess *Mulan*, and then worlds of extraterrestrial life like *Avatar*, exotic elements have always been celebrated by Hollywood and the Academy Awards. Yet, the Western genre, being the very first American and exotic kind that led to the birth of Hollywood  (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64. ) seems to have faded from sight over time. 
+Since its golden peak with the rise of Hollywood film industry in 1912 for short films and in 1925 for long films, western movie production has taken a dramatic downfall and gradually decreased over the past century. However, the genre seemed to have come back into fashion around 2014 for both long and short films, with the release of new movies like *The Lone Ranger* and *A Million Ways to Die in the West*, starring celebrity actors such as Johnny Depp and Charlize Theron respectively. Is revival strong enough to dispel the repeated claim by the critics (e.g. Agresta, 2013)  that Western is a dying genre? Probably not. In this article, we examined the history Western movie production with respect to their broadcasting media and masterminds behind.[^2]
 
-
-Nutgraph:
-
-Since its golden peak with the rise of Hollywood film industry in 1912 (Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64), western movie production has taken a dramatic downfall and gradually decreased for the past century. However, the genre seemed to have come back into fashion around 2014, with the release of new western movies like * The Lone Ranger* and *A Million Ways to Die in the West*, starring famous actors such as Johnny Depp and Charlize Theron respectively. Yet, given the average IMDB ratings of these movies (e.g. 6.5/10 for *The Lone Ranger*; 6.1/10 for *A Million Ways to Die in the West*), we may not expect a western genre revival with the increasing productions. What has or has not made this revival likely or possible? In this article, we explored some possible explanation based on our data analysis adopted from IMDB.com.[^1]  
 
 ```{r, message=FALSE, warning=FALSE}
 #Filtering for short films of western genre
@@ -190,12 +186,10 @@ ggplot(western.sum, aes(x = production_year)) +
         plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
         legend.text = element_text(size = 10)) +
     scale_color_discrete(name = "",
-                         labels = c("Pure Western", "Short Western", "Total Western excluding Short")) 
+                         labels = c("Pure Long Western", "Short Western", "Total Western excluding Short")) 
 ```
 
-First, we looked at how the genre has evolved over the past 100 years and during these two specific peaks. It turns out that the recent Western movies have included more genres than the ones produced 100 years ago. Over the course of 1900 - 2015, there are 13693 western movies in total (As blue line in the graph above), and 9951 (73%) of them were tagged with at least one another genre. Pure western (As red line in the graph above) movies were those categorized only as western genre rather than being in multiple genres. This graph shows that during the prosperous period, western movies are more often made into other genres, instead of remaining only as western movies. 
-
-Interestingly, as shown in the graph below, compared with western movies in 1912, western movies in 2014 were more diversely defined in genres. For example, while most western movies still fall under the category "Short", we see emergence of new genres such as fantasy, horror and musical. This could explain why western movies periodically came back in fashion and increased in production amount, as directors could find ways to incorporate western movie materials into other genres or vice versa.If we pulled out individual genre to examine, however, western is ranked the fifth to the last among all movie genres produced in 2014. This statistic validates the statement that western movies are not as popular as they were before. Emergence of new genres could suggest a deviation from mainstream western genres, perhaps production has decreased because audience prefer movies of other genres.
+Over the course of 1900 - 2015, there are 13693 western movies in total, and 9951 (73%) of them were tagged with at least one another genre. In the linear graph,  pure Western (red line) movies represent those long movies categorized only as Western genre rather than being in multiple genres. The early Western movies are mainly Short films, whose production costs are relatively low compared to long movies on cinema. However, the majority of Western movies during the prosperous years 1920s -- 1960s are actually long movies. Surprisingly, short films rallied back in the 2010s, whereas the production of long western movies has only slightly risen. 
 
 
 ```{r}
@@ -273,6 +267,11 @@ p5 <- ggplot(movie.graph.2014, aes(x=info)) +
 grid.arrange(p4, p5)
 ```
 
+Further, the contents of Western movies have definitely evolved dramatically. For both short (in 1912) and long films (1925),  Western movies had already associated with several other genres . Let’s take Zorro for example: The first movie adaption of Zorro is “the Mark of Zorro,” labeled as western, adventure and romance. This movie had won great attention in the 1920s. Beside Zorro’s mysterious identity and benevolent actions, the romantic relationship between Zorro and his lover Lotita is an important parallel storyline in the movie. 
+
+Compared with western movies in 1912, Western movies in 2014 were even more diversely defined in genres. While the traditional “complementary” genres, such as adventure and romance, remain their popularity in the 21st century, some new cross-genres such as fantasy, horror and musical are coming to stage. This could explain why western movies periodically came back in fashion and increased in production amount, as directors could find ways to incorporate western elements into other genres or vice versa. 
+
+
 ```{r}
 # Extra information on the genre population in 1925 & 2014
 movie.genre.1925.2014 <- movie.genre %>%
@@ -290,9 +289,11 @@ datatable(movie.genre.1925.2014,
           ))),
           caption = htmltools::tags$caption(
     style = 'text-align: center; font-size:150% ;',
-    'Movie Genre Production in 1925 and 2014')
+    'Long Movie Genre Production in 1925 and 2014')
           )
 ```
+
+If we pulled out individual genre to examine, however, Western is ranked the fifth to the last among all long movie genres produced in 2014, while it was ranked the fourth in 1925 (**Note** for the table: click on the arrow buttons next to the year headers to play with the ranking). As long movie has become the mainstream form of entertainment since 1920s, the drastic comparison of Western production volume clearly signifies Western film’s decreasing popularity. Perhaps other genres have distracted the audience from the Western. 
 
 ```{r, warning=FALSE, eval=FALSE}
 media.type <- db %>%
@@ -311,8 +312,6 @@ save(media.type, file = "media.type.rda")
 ##Loading western.movie.rda
 load(file = "media.type.rda")
 ```
-
-Secondly, we are also interested in looking at other types of media productions in the western genre. While movie is always the major type of media production fond of the western genre, some other types of media production, such as TV movies and video movies, are coming into fashion. This trend suggests that perhaps "western" as a genre is only fading from the film industry, we might expect to see its revival elsewhere in the near future. 
 
 
 ```{r, warning=FALSE}
@@ -405,8 +404,14 @@ grid.arrange(pp_tv, pp_tv_movie, pp_video,
 
 ```
 
-On the contrary, [critics](https://www.mprnews.org/story/2014/06/16/daily-circuit-western-movies) have used the same statistic to back up the counter-argument that western is declining because there are fewer directors making films in this genre. But as long as a western movie is on the screen, people would watch it. Even though we do not have the proper statistics to validate the second part of the argument, the mediocre grossing of the recent western movies, such as [*The Lone Ranger*](https://www.mprnews.org/story/2014/06/16/daily-circuit-western-movies), refutes the argument in some ways. The meh performance of western movies may further discourage the big studios to produce films in this genre.
 
-Wrapping up, even though the western genre has a slight revival in movie production recently, our data analysis does not give an optimistic prediction for the future of this genre. The popularity of western is still declining. As a genre so core to American values, western may not compeletly disappear in the films, but it may not be able to return to the main stage of movie production for a while.
+How do media productions other than theater movie response to the western genre? While movie is always the major type of media production fond of the western genre, some other types of media production, such as TV movies and video movies, are coming into fashion. This trend suggests that perhaps "Western" as a genre is only fading from the the cinema. However, as the on-demand TV program and personal computer becoming more and more universal, an increasing number of movies will be watched on TV and personal computer instead of in cinema. The western TV movies, which emerge in the 1960s, do not show the same trend as the western movies in cinema. The quantity of TV movies production remains pretty stable (8 movies per year) during 1970s to 2000s, where the Western movies in cinema are downhill. As for the video movies, which emerges from the 1990s, shows the potential to share the broadcast channel of Western movies in the future. 
 
-[^1]: Github link: https://github.com/ShuliHuhahaha/192MP3
+[Critics](https://www.mprnews.org/story/2014/06/16/daily-circuit-western-movies)[^3] claimed that as long as a Western movie is on the screen, people would watch it. However, the mediocre grossing of the recent long Western movies, such as [*The Lone Ranger*](https://www.mprnews.org/story/2014/06/16/daily-circuit-western-movies), may further discourage the big studios to produce long films in this genre. To some extent, this argument may also justify the revival of the Western short film in 2014: as the production of short films is generally cheaper than that of long films, artists probably would rather experiment with the Western genre in short films. Yet since short film is not the mainstream form of entertainment,  the short western films have not gained much attention in recent years.
+
+Wrapping up, even though the western genre has a slight revival in movie production recently, it is specific to the short film production. our data analysis does not give an optimistic prediction for the future of this genre. The popularity of western still remains stagnant in long movie production, which is the mainstream entertaining form today. As an artistic genre so core to American values, Western will not completely disappear in the films, but it may not be able to return to the main stage of movie production for a while.
+
+
+[^1]: Aquila, Richard. *The Sagebrush Trail: Western Movies and Twentieth-Century America*. p.13-64.
+[^2]: Github link: https://github.com/ShuliHuhahaha/192MP3
+[^3]: The argument is brought up by Jim Hemphill in the podcast, not from the article.

@@ -163,8 +163,8 @@ ggplot(western.sum, aes(x = production_year)) +
     scale_color_discrete(name = "",
                          labels = c("Pure Western Feature", "Western Short", "Total Western Feature")) 
 ```
-```{r, echo=FALSE}
-#Number of allwestern movies made between 1900 and 2015
+```{r, echo=FALSE, eval=FALSE}
+#Number of all western movies made between 1900 and 2015
 n_distinct(western.movie$movie_id)
 #Number of western feature films with multiple genres
 western.multi <- movie.graph %>%
@@ -263,7 +263,7 @@ p5 <- ggplot(movie.graph.2014, aes(x=info)) +
 grid.arrange(p4, p5)
 ```
 
-Further, contents of Western movies have evolved considerably since they first came out. Both short and feature Western films had been produced with other genres in mind in the beginning of their history. For example: The first movie adaption of Zorro, [“the Mark of Zorro”](http://www.imdb.com/title/tt0032762/), falls under the genres Western, Adventure and Romance. As shown in the above figures, recent Western movies have been even more diverse in genres. While genres like Adventure and Romance remained popular in Western movies in the 21st century, Western movies in 2014 have crossed genres with Fantasy, Horror and Musical. This could explain why Western movies has recently increased in production amount. Assuming that the gradual decrease in Western movie production before 2000 was due to lost of audience interest in the Western genre, adding new mainstream genres into Western movies could help bring them back to the market.  
+Further, contents of Western movies have evolved considerably since they first came out. Both short and feature Western films had been produced with other genres in mind in the first peak of their history (1912 and 1925 respectively). For example: The first movie adaption of Zorro, [“the Mark of Zorro”](http://www.imdb.com/title/tt0032762/), falls under the genres Western, Adventure and Romance. As shown in the above figures, recent Western movies have been even more diverse in genres. While genres like Adventure and Romance remained popular in Western movies in the 21st century, Western movies in 2014 have crossed genres with Fantasy, Horror and Musical. This could explain why Western movies has recently increased in production amount. Assuming that the gradual decrease in Western movie production before 2000 was due to lost of audience interest in the Western genre, adding new mainstream genres into Western movies could help bring them back to the market.  
 
 However, if we compare mainstream genres of feature films produced in 1925 and 2014 (**Note**: click arrow buttons in table below to play with genre rankings), Western was the fourth popularly produced genre in 1925, where it ranked the fifth to the last in production popularity in 2014. This signifies Western feature films’ decreasing popularity in production. Even though other genres might be incorporated into Western movies to attract more audience, perhaps it is not the Western element that draws the audience attention. This appears to be true as the history of Western movie production shows a deviation of total Western feature film from pure Western feature film in production amount since the 2000. Perhaps the Western genre by itself has lost the movie audience attention, and indeed slowly dying from the general public’s sight in the feature film industry.
 

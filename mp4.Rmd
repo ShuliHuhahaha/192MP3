@@ -37,7 +37,7 @@ library(DT)
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,fig.width = 10, fig.height = 5)
 ```
 
-![](http://www.imglobalfilm.com/uploads/a790c3fd693a2c7ce4115472b1484504bcd99169.jpg)
+![_The Legend of Zorro, 2005_](http://www.imglobalfilm.com/uploads/a790c3fd693a2c7ce4115472b1484504bcd99169.jpg)
 
 
 ```{r, eval=FALSE}
@@ -172,12 +172,12 @@ ggplot(western.sum, aes(x = production_year)) +
   geom_line(aes(y = pure_western, col = "pure_western")) +
   geom_line(aes(y = movies.short, col = "short_western")) +
   geom_point(aes(x = 1912, y = 390), shape = 21, size=2, col = "black",fill = "black") +
-  annotate("text", x = 1912, y = 410, label = "1925", size = 4, color = "black") +
+  annotate("text", x = 1912, y = 410, label = "1912", size = 4, color = "black") +
   geom_point(aes(x = 1925, y = 230), shape = 21, size=2, col = "black",fill = "black") +
   annotate("text", x = 1925, y = 250, label = "1925", size = 4, color = "black") +
   geom_point(aes(x = 2014, y = 280), shape = 21, size = 2, col = "black",fill = "black") +
   annotate("text", x = 2014, y = 300, label = "2014", size = 4, color = "black") +
-  labs(title = "Western Movie Productions 1900-2015", x = "Production Year", y = "Number of Western Movies") +
+  labs(title = "Western Film Productions 1900-2015", x = "Production Year", y = "Number of Western Films") +
   theme_economist() +
   theme(axis.line = element_line(color = "black"),
         axis.title = element_text(size = 10, face = "bold"),
@@ -186,7 +186,7 @@ ggplot(western.sum, aes(x = production_year)) +
         plot.title = element_text(size = 15, face = "bold", hjust = 0.5),
         legend.text = element_text(size = 10)) +
     scale_color_discrete(name = "",
-                         labels = c("Pure Long Western", "Short Western", "Total Western excluding Short")) 
+                         labels = c("Pure Western Feature", "Western Short", "Total Western Feature")) 
 ```
 
 Over the course of 1900 - 2015, there are 13693 western movies in total, and 9951 (73%) of them were tagged with at least one another genre. In the linear graph,  pure Western (red line) movies represent those long movies categorized only as Western genre rather than being in multiple genres. The early Western movies are mainly Short films, whose production costs are relatively low compared to long movies on cinema. However, the majority of Western movies during the prosperous years 1920s -- 1960s are actually long movies. Surprisingly, short films rallied back in the 2010s, whereas the production of long western movies has only slightly risen. 
@@ -219,7 +219,7 @@ movie.graph.1925 <- movie.graph %>%
 ##Comparing western movie genres in 1912 and 2014 by graphs
 p2 <- ggplot(movie.graph.1912, aes(x = info)) + 
   geom_bar() +
-  labs(title = "Short Western Movie Genre Distribution 1912", x = "Movie Genre", y = "Number of Movies") +
+  labs(title = "Western Short Film Genre Distribution 1912", x = "Film Genre", y = "Number of Films") +
   theme_economist() +
   theme(axis.text = element_text(size = 8),
         axis.title = element_text(size = 10, face = "bold"),
@@ -230,7 +230,7 @@ p2 <- ggplot(movie.graph.1912, aes(x = info)) +
 
 p3 <- ggplot(movie.graph.2014.short, aes(x=info)) + 
   geom_bar() +
-  labs(title = "Short Western Movie Genre Distribution 2014", x="Movie Genre", y="Number of Movies") +
+  labs(title = "Western Short Film Genre Distribution 2014", x="Film Genre", y="Number of Films") +
   theme_economist() +
   theme(axis.text = element_text(size = 5),
         axis.title = element_text(size = 10, face = "bold"),
@@ -244,7 +244,7 @@ grid.arrange(p2, p3)
 ```{r, warning=FALSE, message=FALSE, fig.width=10, fig.height=5}
 p4 <- ggplot(movie.graph.1925, aes(x=info)) + 
   geom_bar() +
-  labs(title = "Long Western Movie Genre Distribution 1925", x="Movie Genre", y="Number of Movies") +
+  labs(title = "Western Feature Film Genre Distribution 1925", x="Film Genre", y="Number of Films") +
   theme_economist() +
   theme(axis.text = element_text(size = 8),
         axis.title = element_text(size = 10, face = "bold"),
@@ -255,7 +255,7 @@ p4 <- ggplot(movie.graph.1925, aes(x=info)) +
 
 p5 <- ggplot(movie.graph.2014, aes(x=info)) + 
   geom_bar() +
-  labs(title = "Long Western Movie Genre Distribution 2014", x="Movie Genre", y="Number of Movies") +
+  labs(title = "Western Feature Film Genre Distribution 2014", x="Film Genre", y="Number of Films") +
   theme_economist() +
   theme(axis.text = element_text(size = 5),
         axis.title = element_text(size = 10, face = "bold"),
@@ -289,7 +289,7 @@ datatable(movie.genre.1925.2014,
           ))),
           caption = htmltools::tags$caption(
     style = 'text-align: center; font-size:150% ;',
-    'Long Movie Genre Production in 1925 and 2014')
+    'Feature Film Genres in 1925 and 2014')
           )
 ```
 
@@ -308,7 +308,7 @@ media.type <- db %>%
 save(media.type, file = "media.type.rda")
 ```
 
-```{r}
+```{r, echo=FALSE}
 ##Loading western.movie.rda
 load(file = "media.type.rda")
 ```

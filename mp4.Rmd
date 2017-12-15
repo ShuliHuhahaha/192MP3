@@ -41,19 +41,16 @@ knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE,fig.width = 10, 
 
 
 
-[News](https://www.hollywoodreporter.com/heat-vision/zorro-get-post-apocalyptic-reboot-815937)[^1] came out in 2015 that the legendary Zorro is finally coming back to life . As arguably the most well-known Western character worldwide, the last time *Zorro* appeared on a movie theater screen was more than a decade ago. Yet, it is not just Zorro. With recent release of movies like [*The Lone Ranger*](http://www.imdb.com/title/tt1210819/?ref_=nv_sr_1) and [*A Million Ways to Die in the West*](http://www.imdb.com/title/tt2557490/?ref_=nv_sr_1), it feels like Western movies are finally “reemerging”, or even emerging for millenials who never witnessed [the golden age of Western genre -- the 1950s](https://cclsmultimedia.wordpress.com/2013/06/07/the-golden-age-of-movie-westerns/)[^2]. Where did Western movies go between then and now? Is the comeback strong enough to dispel the repeated claim by [critics](https://www.theatlantic.com/entertainment/archive/2013/07/how-the-western-was-lost-and-why-it-matters/278057/)[^3] that the genre is dying? 
+[News](https://www.hollywoodreporter.com/heat-vision/zorro-get-post-apocalyptic-reboot-815937) came out in 2015 that the legendary Zorro is finally coming back to life . As arguably the most well-known Western character worldwide, the last time *Zorro* appeared on a movie theater screen was more than a decade ago. Yet, it is not just Zorro. With recent release of movies like [*The Lone Ranger*](http://www.imdb.com/title/tt1210819/?ref_=nv_sr_1) and [*A Million Ways to Die in the West*](http://www.imdb.com/title/tt2557490/?ref_=nv_sr_1), it feels like Western movies are finally “reemerging”, or even emerging for millenials who never witnessed [the golden age of Western genre -- the 1950s](https://cclsmultimedia.wordpress.com/2013/06/07/the-golden-age-of-movie-westerns/). Where did Western movies go between then and now? Is the comeback strong enough to dispel the repeated claim by [critics](https://www.theatlantic.com/entertainment/archive/2013/07/how-the-western-was-lost-and-why-it-matters/278057/) that the genre is dying? 
 
 ```{r, eval=FALSE}
 ##Selecting all western movies produced between 1900 and 2015
 db <- dbConnect_scidb(dbname = "imdb")
 western.movie <- db %>%
-  dbGetQuery("SELECT m.movie_id, t.title, t.production_year, ci.person_id
-              FROM role_type r
-              JOIN cast_info ci ON ci.role_id = r.id
-              JOIN title t ON t.id = ci.movie_id
-              JOIN movie_info m ON t.id = m.movie_id
+  dbGetQuery("SELECT m.movie_id, t.title, t.production_year
+              FROM movie_info m
+              JOIN title t ON t.id = m.movie_id
               WHERE m.info_type_id = 3
-              AND r.id = 8
               AND m.info = 'Western'
               AND t.kind_id = 1
               AND t.production_year >= 1900
@@ -93,7 +90,6 @@ load(file = "movie.genre.rda")
 western.short <- left_join(western.movie, movie.genre) %>%
   filter(info == "Short") 
 movie.short <- c(western.short$movie_id)
-director.short <- c(western.short$person_id)
 
 #Getting rid of short films of western genre
 western.movie.long <- western.movie %>%
@@ -109,13 +105,6 @@ short.sum <- left_join(western.movie,movie.genre) %>%
   filter(movie_id %in% c(movie.short))
 ```
 
-```{r, eval=FALSE, echo=FALSE}
-#Number of western movies made between 1900 and 2015
-n_distinct(western.movie$movie_id)
-#Number of short western movies made between 1900 and 2015
-n_distinct(western.short$movie_id)
-```
-
 ```{r}
 ##Summarize western.movie dataset to see how many western movies are produced each year, arrange in descending order
 western.movie.long2 <- western.movie.long %>%
@@ -124,20 +113,7 @@ western.movie.long2 <- western.movie.long %>%
   arrange(desc(western))
 ```
 
-```{r,eval=FALSE, echo=FALSE}
-datatable(western.movie.long2, 
-          width = 600,
-          colnames = c('Production Year', '# Western Movie'),
-          options = list(columnDefs = list(list(
-            className = 'dt-center', targets = 0
-          ))),
-          caption = htmltools::tags$caption(
-    style = 'text-align: center; font-size:150% ;',
-    'Ranking of Western Long Movie Production by Year')
-          )
-```
-
-The short answer is maybe. Looking at the production history of Western movies between 1900 and 2015, we can highlight that [short film](https://www.oscars.org/sites/oscars/files/88aa_rule19_short.pdf)[^4] (< = 40min) productions has taken a dramatic downfall since its golden peak in 1912. However, there seems to be a trade-off in [feature film](http://www.oscars.org/sites/oscars/files/90th-general_entry_submission_requirements.pdf)[^5] (e.g. theater movies; > 40min) productions of the Western genre from 1920 up until 2000. It appears that in line with our general feeling of a Western genre comeback, productions of both short and feature Western films have been increasing since 2000. But the long answer may prove pessimistic. As we take a closer look at the history of Western movie production in this article, it will be clear that it is too early to declare “a Western comeback.”
+The short answer is maybe. Looking at the production history of Western movies between 1900 and 2015, we can highlight that [short film](https://www.oscars.org/sites/oscars/files/88aa_rule19_short.pdf)[^1](< = 40min) productions has taken a dramatic downfall since its golden peak in 1912. However, there seems to be a trade-off in [feature film](http://www.oscars.org/sites/oscars/files/90th-general_entry_submission_requirements.pdf)[^2](e.g. theater movies; > 40min) productions of the Western genre from 1920 up until 2000. It appears that in line with our general feeling of a Western genre comeback, productions of both short and feature Western films have been increasing since 2000. But the long answer may prove pessimistic. As we take a closer look at the history of Western movie production in this article, it will be clear that it is too early to declare “a Western comeback.”[^3]
 
 ```{r, message=FALSE, warning=FALSE}
 ##Joining datasets so movie.graph includes genre information other than "Western"
@@ -153,8 +129,7 @@ western_total_mulgenre <- movie.graph %>%
 western_only <- movie.graph %>%
   group_by(movie_id) %>%
   summarize(total = n()) %>%
-  arrange(total) %>%
-  head(3471) ##Number of western movies only defined as "Western"
+  filter(total == 1)
 
 pure_western <- c(western_only$movie_id)
 
@@ -170,12 +145,12 @@ ggplot(western.sum, aes(x = production_year)) +
   geom_line(aes(y = western, col = "total_western")) +
   geom_line(aes(y = pure_western, col = "pure_western")) +
   geom_line(aes(y = movies.short, col = "short_western")) +
-  geom_point(aes(x = 1912, y = 390), shape = 21, size=2, col = "black",fill = "black") +
-  annotate("text", x = 1912, y = 410, label = "1912", size = 4, color = "black") +
-  geom_point(aes(x = 1925, y = 230), shape = 21, size=2, col = "black",fill = "black") +
-  annotate("text", x = 1925, y = 250, label = "1925", size = 4, color = "black") +
-  geom_point(aes(x = 2014, y = 280), shape = 21, size = 2, col = "black",fill = "black") +
-  annotate("text", x = 2014, y = 300, label = "2014", size = 4, color = "black") +
+  geom_point(aes(x = 1912, y = 585), shape = 21, size=2, col = "black",fill = "black") +
+  annotate("text", x = 1912, y = 610, label = "1912", size = 4, color = "black") +
+  geom_point(aes(x = 1925, y = 240), shape = 21, size=2, col = "black",fill = "black") +
+  annotate("text", x = 1925, y = 260, label = "1925", size = 4, color = "black") +
+  geom_point(aes(x = 2014, y = 290), shape = 21, size = 2, col = "black",fill = "black") +
+  annotate("text", x = 2014, y = 310, label = "2014", size = 4, color = "black") +
   labs(title = "Western Film Productions 1900-2015", 
        x = "Production Year", y = "Number of Western Films") +
   theme_economist() +
@@ -188,8 +163,27 @@ ggplot(western.sum, aes(x = production_year)) +
     scale_color_discrete(name = "",
                          labels = c("Pure Western Feature", "Western Short", "Total Western Feature")) 
 ```
+```{r, echo=FALSE}
+#Number of allwestern movies made between 1900 and 2015
+n_distinct(western.movie$movie_id)
+#Number of western feature films with multiple genres
+western.multi <- movie.graph %>%
+  group_by(movie_id) %>%
+  summarize(total = n()) %>%
+  filter(total > 1) 
+n_distinct(western.multi$movie_id)
+#Number of short western movies made between 1900 and 2015
+sum(western.short$movies.short)
+#Number of western short films with multiple genres
+short.multi <- short.sum %>%
+  filter(info != "Short") %>%
+  group_by(movie_id) %>%
+  summarize(total = n()) %>%
+  filter(total > 1) 
+n_distinct(short.multi$movie_id)
+```
 
-In total, 13693 Western movies were produced between 1900 and 2015, 73% of which had at least one genre other than “Western”. The above graph shows the history of production of pure Western feature films (feature films only labeled “Western” in genre), total Western feature films (all feature films with a Western genre label) and Western short films (all short films with a Western genre label). Short films dominated Western movie production prior to 1920, which could be explained by limited production technology or lower production costs. Feature films dominated the golden years of Western movies from 1920s to early 1970s. Surprisingly, Western short films rallied back in the 2010s, whereas Western feature films has only slightly risen since 2000. Thus, if "comeback" were to be termed for the Western genre, it only applies to short films, as Western feature film production needs yet to catch up with its prosperous years.  
+In total, 13693 Western movies were produced between 1900 and 2015, the majority (28.31% Western feature films & 42.31% Western Short films) of which had at least one genre other than “Western”. The above graph shows the history of production of pure Western feature films (feature films only labeled “Western” in genre), total Western feature films (all feature films with a Western genre label) and Western short films (all short films with a Western genre label). Short films dominated Western movie production prior to 1920, which could be explained by limited production technology or lower production costs. Feature films dominated the golden years of Western movies from 1920s to early 1970s. Surprisingly, Western short films rallied back in the 2010s, whereas Western feature films has only slightly risen since 2000. Thus, if "comeback" were to be termed for the Western genre, it only applies to short films, as Western feature film production needs yet to catch up with its prosperous years.  
 
 ```{r}
 ##Filtering short western movies produced in 1912
@@ -269,7 +263,7 @@ p5 <- ggplot(movie.graph.2014, aes(x=info)) +
 grid.arrange(p4, p5)
 ```
 
-Further, contents of Western movies have evolved considerably since they first came out. Both short and feature Western films had been produced with other genres in mind in the beginning of their history. For example: The first movie adaption of Zorro, [“the Mark of Zorro”](http://www.imdb.com/title/tt0032762/)[^6], falls under the genres Western, Adventure and Romance. As shown in the above figures, recent Western movies have been even more diverse in genres. While genres like Adventure and Romance remained popular in Western movies in the 21st century, Western movies in 2014 have crossed genres with Fantasy, Horror and Musical. This could explain why Western movies has recently increased in production amount. Assuming that the gradual decrease in Western movie production before 2000 was due to lost of audience interest in the Western genre, adding new mainstream genres into Western movies could help bring them back to the market.  
+Further, contents of Western movies have evolved considerably since they first came out. Both short and feature Western films had been produced with other genres in mind in the beginning of their history. For example: The first movie adaption of Zorro, [“the Mark of Zorro”](http://www.imdb.com/title/tt0032762/), falls under the genres Western, Adventure and Romance. As shown in the above figures, recent Western movies have been even more diverse in genres. While genres like Adventure and Romance remained popular in Western movies in the 21st century, Western movies in 2014 have crossed genres with Fantasy, Horror and Musical. This could explain why Western movies has recently increased in production amount. Assuming that the gradual decrease in Western movie production before 2000 was due to lost of audience interest in the Western genre, adding new mainstream genres into Western movies could help bring them back to the market.  
 
 However, if we compare mainstream genres of feature films produced in 1925 and 2014 (**Note**: click arrow buttons in table below to play with genre rankings), Western was the fourth popularly produced genre in 1925, where it ranked the fifth to the last in production popularity in 2014. This signifies Western feature films’ decreasing popularity in production. Even though other genres might be incorporated into Western movies to attract more audience, perhaps it is not the Western element that draws the audience attention. This appears to be true as the history of Western movie production shows a deviation of total Western feature film from pure Western feature film in production amount since the 2000. Perhaps the Western genre by itself has lost the movie audience attention, and indeed slowly dying from the general public’s sight in the feature film industry.
 
@@ -406,14 +400,9 @@ grid.arrange(pp_tv, pp_tv_movie, pp_video,
 
 Nonetheless, perhaps “Western” as a genre is only fading from movie theaters. Aside from the recent peak in Western short film production, the genre has gained attention from other types of media production, such as TV movies (movies produced for television network) and video movies (e.g. movies made in video format, movies shared through video sites). It is possible that the future of Western genre is with these types of entertainment. For example, the quantity of TV movies production remained relatively stable (8 movies per year) from 1970s to 2000s when Western feature films went downhill. The video movies, which emerged in the 1990s, show a potential migration in broadcasting channel of Western movies in the future. 
 
-Wrapping up, the recent increase in Western movie production is not a strong indication of a Western comeback. While the genre seems to be regaining attention from directors of short films, it has stayed of marginal importance in mainstream feature films since the end of its golden age around 1975. However, perhaps that as an artistic genre core to the American values and the rise of Hollywood 7, Western is permeating the film industry in parts and elements. For example, cowboy characters, as a central representation of the Western genre, are portrayed in movies that are not labeled Western (e.g. [*Kingsman: The Golden Circle*]( http://www.imdb.com/title/tt4649466/?ref_=nv_sr_1)). Therefore, the next important question would be how Western genre has represented itself both explicitly and implicitly in the modern age through multi-genre movies. 
+Wrapping up, the recent increase in Western movie production is not a strong indication of a Western comeback. While the genre seems to be regaining attention from directors of short films, it has stayed of marginal importance in mainstream feature films since the end of its golden age around 1975. However, perhaps that as an artistic genre core to the American values and [the rise of Hollywood](http://www.nytimes.com/2007/11/10/magazine/11schatz.html), Western is permeating the film industry in parts and elements. For example, cowboy characters, as a central representation of the Western genre, are portrayed in movies that are not labeled Western (e.g. [*Kingsman: The Golden Circle*]( http://www.imdb.com/title/tt4649466/?ref_=nv_sr_1)). Therefore, the next important question would be how Western genre has represented itself both explicitly and implicitly in the modern age through multi-genre movies. 
 
 
-[^1]: Kit, Borys. *'Zorro' to Get Post-Apocalyptic Reboot Film (Exclusive)*
-[^2]: Chester County Library Multimedia Blog. *The Golden Age of Movie Westerns*
-[^3]: Argesta, Michael. *How the Western Was Lost (and Why It Matters)*
-[^4]: Academy of Motion Picture Arts and Sciences.*88th Academy Awards Special Rules For The Short Film Awards*
-[^5]: Academy of Motion Picture Arts and Sciences.*Submission Requirements for the General Entry Categories*
-[^6]: IMDb. *The Mark of Zorro*
-[^7]: Schatz, Thomas. *Cowboy Business*
-[^8]: Github link: https://github.com/ShuliHuhahaha/192MP3
+[^1]: We assumed that IMDb's definition of short films followed stardards by the Academy of Motion Picture Arts and Sciences
+[^2]: We assumed that IMDb's definition of short films followed stardards by the Academy of Motion Picture Arts and Sciences
+[^3]: Database from Github: https://github.com/ShuliHuhahaha/192MP3
